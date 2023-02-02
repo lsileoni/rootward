@@ -5,6 +5,7 @@ using TMPro;
 using Jint;
 using Jint.Native;
 using System.Text.RegularExpressions;
+using System;
 
 enum CommandCodes : int
 {
@@ -12,17 +13,17 @@ enum CommandCodes : int
     CMD_PING,
     CMD_LS,
     CMD_CAT,
-    CMD_CATFOR,
     CMD_JSRUN,
-    CMD_FORRUN,
     CMD_PWD,
-    CMD_CD
+    CMD_CD,
+    CMD_MKDIR,
+    CMD_ED
 }
 
 struct Command
 {
-    string cmd;
-    string argument;
+    public string cmd;
+    public string argument;
 }
 public class text_repl : MonoBehaviour
 {
@@ -32,39 +33,43 @@ public class text_repl : MonoBehaviour
     private string[] inputs;
     public int rowPos;
     private Engine engine;
+    private bool editing;
     private Command cmd;
     private string tmp;
     private JintEvaluator jintEvaluator;
     private string code;
     private JsValue result;
+    private Command cur_cmd;
     // Update is called once per frame
     private int command_check(string str)
     {
-        if (str.Contains("clear"))
+        if (str.Equals("clear"))
             return ((int)CommandCodes.CMD_CLEAR);
-        if (str.Contains("ping"))
+        if (str.Equals("ping"))
             return ((int)CommandCodes.CMD_PING);
-        if (str.Contains("pwd"))
+        if (str.Equals("pwd"))
             return ((int)CommandCodes.CMD_PWD);
-        if (str.Contains("cd"))
+        if (str.Equals("cd"))
             return ((int)CommandCodes.CMD_CD);
-        if (str.Contains("ls"))
+        if (str.Equals("mkdir"))
+            return ((int)CommandCodes.CMD_MKDIR);
+        if (str.Equals("ls"))
             return ((int)CommandCodes.CMD_LS);
-        if (str.Contains("cat for_loop.js"))
-            return ((int)CommandCodes.CMD_CATFOR);
-        if (str.Contains("cat hello.js"))
+        if (str.Equals("cat"))
             return ((int)CommandCodes.CMD_CAT);
-        if (str.Contains("javascript hello.js"))
+        if (str.Equals("javascript"))
             return ((int)CommandCodes.CMD_JSRUN);
-        if (str.Contains("javascript for_loop.js"))
-            return ((int)CommandCodes.CMD_FORRUN);
+        if (str.Equals("ed") || str.Equals("vim") || str.Equals("emacs"))
+            return ((int)CommandCodes.CMD_ED);
         return (-1);
     }
     void Start()
     {
         engine = new Engine();
         code = "";
+        cur_cmd = new Command();
         result = null;
+        editing = false;
         jintEvaluator = new JintEvaluator();
         fs = new FileSystem(Application.persistentDataPath);
         textComponent.color = Color.green;
@@ -75,10 +80,21 @@ public class text_repl : MonoBehaviour
     }
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Plus))
+            inputField.pointSize++;
+        if (Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Minus))
+            inputField.pointSize--;
         if (Input.GetKeyDown(KeyCode.Return)) {
             inputs = inputField.text.Split('>');
             tmp = inputs[inputs.Length - 1].Trim();
-            switch (command_check(inputs[inputs.Length - 1])) {
+            tmp = Regex.Replace(tmp, " {2,}", " ");
+            inputs = tmp.Split(" ");
+            cur_cmd.cmd = inputs[0];
+            if (inputs.Length > 1)
+                cur_cmd.argument = inputs[1];
+            else
+                cur_cmd.argument = "";
+            switch (command_check(cur_cmd.cmd)) {
                 case (int)CommandCodes.CMD_CLEAR:
                     inputField.text = "> ";
                     break;
@@ -89,30 +105,77 @@ public class text_repl : MonoBehaviour
                 case (int)CommandCodes.CMD_PING:
                     inputField.text += "pong\n> ";
                     break;
-                case (int)CommandCodes.CMD_LS:
-                    //inputField.text += fs.GetFiles() + "\n";
-                    inputField.text += fs.GetDirectories();
+                case (int)CommandCodes.CMD_ED:
+                    if (cur_cmd.argument == "")
+                    {
+                        inputField.text += "Empty argument\n> ";
+                        break;
+                    }
+                    else if (fs.fileExists(cur_cmd.argument))
+                    {
+                        tmp = inputField.text + "\n> ";
+                        inputField.text = fs.GetFileContent(cur_cmd.argument);
+                    }
+                    inputField.text += "pong\n> ";
                     break;
-                case (int)CommandCodes.CMD_CAT:
-                    inputField.text += "log('Hello from JS land!')\n> ";
-                    break;
-                case (int)CommandCodes.CMD_CATFOR:
-                    inputField.text += "var result = '';\nfor (var i = 0; i < 10; i++) {\n\tresult += i + ' ';\n}\nresult;\n> ";
-                    break;
-                case (int)CommandCodes.CMD_JSRUN:
-                    code = "'Hello from JS land!'";
-                    result = jintEvaluator.Evaluate(code);
-                    inputField.text += result.ToString();
+                case (int)CommandCodes.CMD_CD:
+                    if (cur_cmd.argument == "")
+                    {
+                        inputField.text += "Empty argument\n> ";
+                        break;
+                    }
+                    else if (cur_cmd.argument == "..")
+                        fs.goBackDir();
+                    else
+                        fs.goToDir(cur_cmd.argument);
                     inputField.text += "\n> ";
                     break;
-                case (int)CommandCodes.CMD_FORRUN:
-                    code = "var result = ''; for (var i = 0; i < 10; i++) { result += i + ' '; } result;";
+                case (int)CommandCodes.CMD_LS:
+                    inputField.text += "Files: " + fs.GetFiles() + "\n";
+                    inputField.text += "Directories: " + fs.GetDirectories();
+                    inputField.text += "\n> ";
+                    break;
+                case (int)CommandCodes.CMD_CAT:
+                    if (cur_cmd.argument == "")
+                    {
+                        inputField.text += "Empty argument\n> ";
+                        break;
+                    }
+                    if (fs.GetFileContent(cur_cmd.argument) == "")
+                    {
+                        inputField.text += "File not found!\n> ";
+                        break;
+                    }
+                    inputField.text += fs.GetFileContent(cur_cmd.argument) + "\n";
+                    inputField.text += "\n> ";
+                    break;
+                case (int)CommandCodes.CMD_MKDIR:
+                    if (cur_cmd.argument == "")
+                    {
+                        inputField.text += "Empty argument\n> ";
+                        break;
+                    }
+                    fs.createDirectory(cur_cmd.argument);
+                    inputField.text += "\n> ";
+                    break;
+                case (int)CommandCodes.CMD_JSRUN:
+                    if (cur_cmd.argument == "")
+                    {
+                        inputField.text += "Empty argument\n> ";
+                        break;
+                    }
+                    if (!fs.fileExists(cur_cmd.argument))
+                    {
+                        inputField.text += "File doesn't exist\n> ";
+                        break;
+                    }
+                    code = fs.GetFileContent(cur_cmd.argument);
                     result = jintEvaluator.Evaluate(code);
                     inputField.text += result.ToString();
                     inputField.text += "\n> ";
                     break;
                 default:
-                    inputField.text += "> ";
+                    inputField.text += "Command not found\n> ";
                     break;
             }
             inputField.MoveTextEnd(false);

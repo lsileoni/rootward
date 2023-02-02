@@ -17,6 +17,7 @@ public class FileSystem
     {
         return (filepath);
     }
+
     public FileSystem(string start)
     {
         filepath = start;
@@ -27,9 +28,7 @@ public class FileSystem
             Debug.Log("test.js doesn't exist, creating");
         }
         else
-        {
             Debug.Log("test.json exists, all good!");
-        }
     }
 
     public void createFile(string path, string content)
@@ -43,18 +42,28 @@ public class FileSystem
             }
         }
     }
-    public void createDirectory(string path)
+    public void createDirectory(string dirname)
     {
+        string path = filepath + "/" + dirname;
         if (!Directory.Exists(path))
             Directory.CreateDirectory(path);
     }
 
-    public void goToDir(string dir)
+    public bool fileExists(string filename)
     {
-        if (!Directory.Exists(dir))
+        if (File.Exists(filepath + "/" + filename))
+            return true;
+        else
+            return false;
+    }
+
+    public void goToDir(string dirname)
+    {
+        string path = filepath + "/" + dirname;
+        if (!Directory.Exists(path))
             return;
         else
-            filepath = Path.Combine(dir, filepath);
+            filepath = path;
     }
 
     public void goBackDir()
@@ -63,6 +72,15 @@ public class FileSystem
             return;
         else
             filepath = Path.GetDirectoryName(filepath);
+    }
+
+    public string GetFileContent(string filename)
+    {
+        string path = filepath + "/" + filename;
+        if (!File.Exists(path))
+            return "";
+        else
+            return (File.ReadAllText(path));
     }
 
     public string   GetFiles()
