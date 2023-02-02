@@ -14,7 +14,6 @@ public class JintEvaluator
 
     public JsValue Evaluate(string code)
     {
-        //test
         return engine.Execute(code).GetCompletionValue();
     }
 }
