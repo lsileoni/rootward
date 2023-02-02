@@ -17,7 +17,9 @@ enum CommandCodes : int
     CMD_PWD,
     CMD_CD,
     CMD_MKDIR,
-    CMD_ED
+    CMD_ED,
+    CMD_HELP,
+    CMD_MISS
 }
 
 struct Command
@@ -40,6 +42,8 @@ public class text_repl : MonoBehaviour
     private string code;
     private JsValue result;
     private Command cur_cmd;
+    private Missions missions;
+    
     // Update is called once per frame
     private int command_check(string str)
     {
@@ -57,11 +61,29 @@ public class text_repl : MonoBehaviour
             return ((int)CommandCodes.CMD_LS);
         if (str.Equals("cat"))
             return ((int)CommandCodes.CMD_CAT);
-        if (str.Equals("javascript"))
+        if (str.Equals("javascript") || str.Equals("js"))
             return ((int)CommandCodes.CMD_JSRUN);
         if (str.Equals("ed") || str.Equals("vim") || str.Equals("emacs"))
             return ((int)CommandCodes.CMD_ED);
+        if (str.Equals("h") || str.Equals("help"))
+            return ((int)CommandCodes.CMD_HELP);
+        if (str.Equals("missions") || str.Equals("miss"))
+            return ((int)CommandCodes.CMD_MISS);
         return (-1);
+    }
+    private void print_help()
+    {
+        inputField.text += "'clear' clear\n";
+        inputField.text += "'ping' ping\n";
+        inputField.text += "'pwd' print working directory\n";
+        inputField.text += "'cd' current directory\n";
+        inputField.text += "'mkdir' make directory\n";
+        inputField.text += "'ls' list files\n";
+        inputField.text += "'cat' list contents\n";
+        inputField.text += "'js' run javascripts\n";
+        inputField.text += "'ed' 'vim' 'emacs' text editors\n";
+        inputField.text += "'h' 'help' help\n";
+        inputField.text += "> ";
     }
     void Start()
     {
@@ -77,6 +99,7 @@ public class text_repl : MonoBehaviour
         inputs = inputField.text.Split('\n');
         rowPos = inputs[inputs.Length - 1].Length;
         inputField.MoveTextEnd(false);
+        missions = new Missions();
     }
     void Update()
     {
@@ -172,6 +195,14 @@ public class text_repl : MonoBehaviour
                     code = fs.GetFileContent(cur_cmd.argument);
                     result = jintEvaluator.Evaluate(code);
                     inputField.text += result.ToString();
+                    inputField.text += "\n> ";
+                    break;
+                case (int)CommandCodes.CMD_HELP:
+                    print_help();
+                    break;
+                case (int)CommandCodes.CMD_MISS:
+//                    Debug.Log(jintEvaluator.Evaluate(inputs[1]).ToString());
+                    missions.test(inputs[1]);
                     inputField.text += "\n> ";
                     break;
                 default:
