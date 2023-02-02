@@ -22,13 +22,10 @@ public class FileSystem
     {
         filepath = start;
         origin = start;
-        if (!File.Exists(start + "/test.js"))
-        {
-            createFile(start + "/test.js", "log('Hello from JS land!')");
-            Debug.Log("test.js doesn't exist, creating");
-        }
-        else
-            Debug.Log("test.json exists, all good!");
+        if (!Directory.Exists(start + "/one"))
+            Directory.CreateDirectory(start + "/one");
+        if (!File.Exists(start + "/one/instructions.txt"))
+            createFile(start + "/one/instructions.txt", "Welcome to 127.0.0.1; nothing like home!");
     }
 
     public void createFile(string path, string content)

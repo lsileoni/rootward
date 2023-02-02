@@ -7,7 +7,7 @@ using Jint.Native;
 using System.Text.RegularExpressions;
 using System;
 
-enum CommandCodes : int
+enum e_CommandCodes : int
 {
     CMD_CLEAR,
     CMD_PING,
@@ -22,10 +22,22 @@ enum CommandCodes : int
     CMD_MISS
 }
 
-struct Command
+struct s_Command
 {
     public string cmd;
     public string argument;
+}
+
+public class s_File
+{
+    public bool     reading;
+    public string   filename;
+
+    public s_File()
+    {
+        this.reading = false;
+        this.filename = "";
+    }
 }
 public class text_repl : MonoBehaviour
 {
@@ -34,41 +46,41 @@ public class text_repl : MonoBehaviour
     private FileSystem fs;
     private string[] inputs;
     public int rowPos;
-    private Engine engine;
-    private bool editing;
-    private Command cmd;
+    private s_Command cmd;
     private string tmp;
     private JintEvaluator jintEvaluator;
     private string code;
     private JsValue result;
-    private Command cur_cmd;
+    private s_Command cur_cmd;
+    private s_File edited_file;
     private Missions missions;
-    
     // Update is called once per frame
     private int command_check(string str)
     {
         if (str.Equals("clear"))
-            return ((int)CommandCodes.CMD_CLEAR);
+            return ((int)e_CommandCodes.CMD_CLEAR);
         if (str.Equals("ping"))
-            return ((int)CommandCodes.CMD_PING);
+            return ((int)e_CommandCodes.CMD_PING);
         if (str.Equals("pwd"))
-            return ((int)CommandCodes.CMD_PWD);
+            return ((int)e_CommandCodes.CMD_PWD);
         if (str.Equals("cd"))
-            return ((int)CommandCodes.CMD_CD);
+            return ((int)e_CommandCodes.CMD_CD);
         if (str.Equals("mkdir"))
-            return ((int)CommandCodes.CMD_MKDIR);
+            return ((int)e_CommandCodes.CMD_MKDIR);
         if (str.Equals("ls"))
-            return ((int)CommandCodes.CMD_LS);
+            return ((int)e_CommandCodes.CMD_LS);
         if (str.Equals("cat"))
-            return ((int)CommandCodes.CMD_CAT);
-        if (str.Equals("javascript") || str.Equals("js"))
-            return ((int)CommandCodes.CMD_JSRUN);
+            return ((int)e_CommandCodes.CMD_CAT);
         if (str.Equals("ed") || str.Equals("vim") || str.Equals("emacs"))
-            return ((int)CommandCodes.CMD_ED);
+            return ((int)e_CommandCodes.CMD_ED);
+        if (str.Equals("javascript") || str.Equals("js"))
+            return ((int)e_CommandCodes.CMD_JSRUN);
+        if (str.Equals("ed") || str.Equals("vim") || str.Equals("emacs"))
+            return ((int)e_CommandCodes.CMD_ED);
         if (str.Equals("h") || str.Equals("help"))
-            return ((int)CommandCodes.CMD_HELP);
+            return ((int)e_CommandCodes.CMD_HELP);
         if (str.Equals("missions") || str.Equals("miss"))
-            return ((int)CommandCodes.CMD_MISS);
+            return ((int)e_CommandCodes.CMD_MISS);
         return (-1);
     }
     private void print_help()
@@ -87,18 +99,18 @@ public class text_repl : MonoBehaviour
     }
     void Start()
     {
-        engine = new Engine();
-        code = "";
-        cur_cmd = new Command();
-        result = null;
-        editing = false;
-        jintEvaluator = new JintEvaluator();
-        fs = new FileSystem(Application.persistentDataPath);
         textComponent.color = Color.green;
         inputField.text = "> ";
+        inputField.MoveTextEnd(false);
+        code = "";
+        tmp = "";
+        cur_cmd = new s_Command();
+        result = null;
+        edited_file = new s_File();
+        jintEvaluator = new JintEvaluator();
+        fs = new FileSystem(Application.persistentDataPath);
         inputs = inputField.text.Split('\n');
         rowPos = inputs[inputs.Length - 1].Length;
-        inputField.MoveTextEnd(false);
         missions = new Missions();
     }
     void Update()
@@ -107,7 +119,7 @@ public class text_repl : MonoBehaviour
             inputField.pointSize++;
         if (Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Minus))
             inputField.pointSize--;
-        if (Input.GetKeyDown(KeyCode.Return)) {
+        if (Input.GetKeyDown(KeyCode.Return) && !edited_file.reading) {
             inputs = inputField.text.Split('>');
             tmp = inputs[inputs.Length - 1].Trim();
             tmp = Regex.Replace(tmp, " {2,}", " ");
@@ -118,30 +130,27 @@ public class text_repl : MonoBehaviour
             else
                 cur_cmd.argument = "";
             switch (command_check(cur_cmd.cmd)) {
-                case (int)CommandCodes.CMD_CLEAR:
+                case (int)e_CommandCodes.CMD_CLEAR:
                     inputField.text = "> ";
                     break;
-                case (int)CommandCodes.CMD_PWD:
+                case (int)e_CommandCodes.CMD_PWD:
                     inputField.text += fs.GetCurrentDirectory();
                     inputField.text += "\n> ";
                     break;
-                case (int)CommandCodes.CMD_PING:
+                case (int)e_CommandCodes.CMD_PING:
                     inputField.text += "pong\n> ";
                     break;
-                case (int)CommandCodes.CMD_ED:
+                case (int)e_CommandCodes.CMD_ED:
                     if (cur_cmd.argument == "")
-                    {
                         inputField.text += "Empty argument\n> ";
-                        break;
-                    }
                     else if (fs.fileExists(cur_cmd.argument))
                     {
                         tmp = inputField.text + "\n> ";
                         inputField.text = fs.GetFileContent(cur_cmd.argument);
+                        edited_file.reading = true;
                     }
-                    inputField.text += "pong\n> ";
                     break;
-                case (int)CommandCodes.CMD_CD:
+                case (int)e_CommandCodes.CMD_CD:
                     if (cur_cmd.argument == "")
                     {
                         inputField.text += "Empty argument\n> ";
@@ -153,12 +162,12 @@ public class text_repl : MonoBehaviour
                         fs.goToDir(cur_cmd.argument);
                     inputField.text += "\n> ";
                     break;
-                case (int)CommandCodes.CMD_LS:
+                case (int)e_CommandCodes.CMD_LS:
                     inputField.text += "Files: " + fs.GetFiles() + "\n";
                     inputField.text += "Directories: " + fs.GetDirectories();
                     inputField.text += "\n> ";
                     break;
-                case (int)CommandCodes.CMD_CAT:
+                case (int)e_CommandCodes.CMD_CAT:
                     if (cur_cmd.argument == "")
                     {
                         inputField.text += "Empty argument\n> ";
@@ -172,7 +181,7 @@ public class text_repl : MonoBehaviour
                     inputField.text += fs.GetFileContent(cur_cmd.argument) + "\n";
                     inputField.text += "\n> ";
                     break;
-                case (int)CommandCodes.CMD_MKDIR:
+                case (int)e_CommandCodes.CMD_MKDIR:
                     if (cur_cmd.argument == "")
                     {
                         inputField.text += "Empty argument\n> ";
@@ -181,7 +190,7 @@ public class text_repl : MonoBehaviour
                     fs.createDirectory(cur_cmd.argument);
                     inputField.text += "\n> ";
                     break;
-                case (int)CommandCodes.CMD_JSRUN:
+                case (int)e_CommandCodes.CMD_JSRUN:
                     if (cur_cmd.argument == "")
                     {
                         inputField.text += "Empty argument\n> ";
@@ -197,10 +206,10 @@ public class text_repl : MonoBehaviour
                     inputField.text += result.ToString();
                     inputField.text += "\n> ";
                     break;
-                case (int)CommandCodes.CMD_HELP:
+                case (int)e_CommandCodes.CMD_HELP:
                     print_help();
                     break;
-                case (int)CommandCodes.CMD_MISS:
+                case (int)e_CommandCodes.CMD_MISS:
 //                    Debug.Log(jintEvaluator.Evaluate(inputs[1]).ToString());
                     missions.test(inputs[1]);
                     inputField.text += "\n> ";
