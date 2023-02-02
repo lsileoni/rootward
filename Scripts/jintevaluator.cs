@@ -1,6 +1,7 @@
 using UnityEngine;
 using Jint;
 using Jint.Native;
+using System;
 
 public class JintEvaluator
 {
@@ -8,7 +9,7 @@ public class JintEvaluator
 
     public JintEvaluator()
     {
-        engine = new Engine();
+        engine = new Engine().SetValue("log", new Action<object>(Debug.Log));
     }
 
     public JsValue Evaluate(string code)
