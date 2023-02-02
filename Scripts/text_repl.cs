@@ -35,8 +35,8 @@ public class s_File
 
     public s_File()
     {
-        this.reading = false;
-        this.filename = "";
+        reading = false;
+        filename = "";
     }
 }
 public class text_repl : MonoBehaviour
@@ -149,6 +149,11 @@ public class text_repl : MonoBehaviour
                         inputField.text = fs.GetFileContent(cur_cmd.argument);
                         edited_file.reading = true;
                     }
+                    else
+                    {
+                        inputField.text = "";
+                        edited_file.reading = true;
+                    }
                     break;
                 case (int)e_CommandCodes.CMD_CD:
                     if (cur_cmd.argument == "")
@@ -235,6 +240,7 @@ public class text_repl : MonoBehaviour
             string code = "1 + 1";
             JsValue result = jintEvaluator.Evaluate(code);
             Debug.Log(result.ToString());
+            edited_file.reading = false;
         }
         textComponent.ForceMeshUpdate();
     }
