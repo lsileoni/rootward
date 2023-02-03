@@ -41,6 +41,7 @@ public class s_File
 }
 public class text_repl : MonoBehaviour
 {
+	public Player player;
     public TMP_Text textComponent;
     public TMP_InputField inputField;
     private FileSystem fs;
@@ -100,6 +101,7 @@ public class text_repl : MonoBehaviour
     }
     void Start()
     {
+		player = new Player();
         textComponent.color = Color.green;
         inputField.text = "> ";
         inputField.MoveTextEnd(false);
@@ -222,7 +224,7 @@ public class text_repl : MonoBehaviour
                     break;
                 case (int)e_CommandCodes.CMD_MISS:
 //                    Debug.Log(jintEvaluator.Evaluate(inputs[1]).ToString());
-                    missions.test(inputs[1]);
+                    missions.test(inputs[1], player);
                     inputField.text += "\n> ";
                     break;
                 default:
