@@ -11,8 +11,24 @@ public class Missions
         jint = new JintEvaluator();
     }
 
-    public void test(string code)
+    public string expected_out(Player player)
     {
-        Debug.Log(jint.Evaluate(code).ToString());
+        if (player.current_mission == 0)
+        {
+            return ("helloworld");
+        }
+        return ("");
+    }
+    public bool test(string code, Player player)
+    {
+        string output = jint.Evaluate(code).ToString();
+        string solution = expected_out(player).ToString();
+        if (output.Equals(solution))
+        {
+			return (true);
+        }
+        Debug.Log("expected " + expected_out(player));
+        Debug.Log("output " + output);
+		return (false);
     }
 }
