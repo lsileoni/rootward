@@ -50,6 +50,7 @@ public class text_repl : MonoBehaviour
     private string tmp;
     private JintEvaluator jintEvaluator;
     private string code;
+    private string history;
     private JsValue result;
     private s_Command cur_cmd;
     private s_File edited_file;
@@ -104,6 +105,7 @@ public class text_repl : MonoBehaviour
         inputField.MoveTextEnd(false);
         code = "";
         tmp = "";
+        history = "";
         cur_cmd = new s_Command();
         result = null;
         edited_file = new s_File();
@@ -145,14 +147,18 @@ public class text_repl : MonoBehaviour
                         inputField.text += "Empty argument\n> ";
                     else if (fs.fileExists(cur_cmd.argument))
                     {
-                        tmp = inputField.text + "\n> ";
+                        history = inputField.text + "\n> ";
                         inputField.text = fs.GetFileContent(cur_cmd.argument);
                         edited_file.reading = true;
+                        edited_file.filename = cur_cmd.argument;
+                        inputField.MoveTextEnd(true);
                     }
                     else
                     {
+                        history = inputField.text + "\n> ";
                         inputField.text = "";
                         edited_file.reading = true;
+                        edited_file.filename = cur_cmd.argument;
                     }
                     break;
                 case (int)e_CommandCodes.CMD_CD:
@@ -183,7 +189,7 @@ public class text_repl : MonoBehaviour
                         inputField.text += "File not found!\n> ";
                         break;
                     }
-                    inputField.text += fs.GetFileContent(cur_cmd.argument) + "\n";
+                    inputField.text += fs.GetFileContent(cur_cmd.argument);
                     inputField.text += "\n> ";
                     break;
                 case (int)e_CommandCodes.CMD_MKDIR:
@@ -225,7 +231,7 @@ public class text_repl : MonoBehaviour
             }
             inputField.MoveTextEnd(false);
         }
-        else if (Input.GetKeyDown(KeyCode.Backspace)) {
+        else if (Input.GetKeyDown(KeyCode.Backspace) && !edited_file.reading) {
             inputs = inputField.text.Split('\n');
             rowPos = inputs[inputs.Length - 1].Length;
             if (rowPos == 1) {
@@ -233,14 +239,24 @@ public class text_repl : MonoBehaviour
                 inputField.MoveTextEnd(false);
             }
         }
-        else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.UpArrow)) {
+        else if ((Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.UpArrow)) && !edited_file.reading) {
                 inputField.MoveTextEnd(false);
         }
         else if (Input.GetKeyDown(KeyCode.Escape)) {
             string code = "1 + 1";
             JsValue result = jintEvaluator.Evaluate(code);
             Debug.Log(result.ToString());
-            edited_file.reading = false;
+            inputField.MoveTextEnd(false);
+        }
+        else if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            if (edited_file.reading)
+            {
+                Debug.Log("Input field: " + inputField.text);
+                fs.writeFileContent(edited_file.filename, inputField.text);
+                inputField.text = history;
+                edited_file.reading = false;
+            }
         }
         textComponent.ForceMeshUpdate();
     }

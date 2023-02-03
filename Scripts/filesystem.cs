@@ -39,6 +39,29 @@ public class FileSystem
             }
         }
     }
+
+    public void removeFile(string filename)
+    {
+        string path = filepath + "/" + filename;
+        if (File.Exists(path))
+            File.Delete(path);
+    }
+
+    public void writeFileContent(string filename, string content)
+    {
+        Debug.Log("FILENAME IN WRITEFILECONTENT: " + filename);
+        Debug.Log("CONTENT IN WRITEFILECONTENT: " + content);
+        string path = filepath + "/" + filename;
+        Debug.Log("PATH: " + path);
+        if (!File.Exists(path))
+            createFile(path, content);
+        else
+        {
+            removeFile(filename);
+            createFile(path, content);
+        }
+    }
+
     public void createDirectory(string dirname)
     {
         string path = filepath + "/" + dirname;
