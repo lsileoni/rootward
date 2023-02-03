@@ -55,7 +55,7 @@ public class text_repl : MonoBehaviour
     private JsValue result;
     private s_Command cur_cmd;
     private s_File edited_file;
-    private Missions missions;
+    private Mission mission;
     // Update is called once per frame
     private int command_check(string str)
     {
@@ -81,7 +81,7 @@ public class text_repl : MonoBehaviour
             return ((int)e_CommandCodes.CMD_ED);
         if (str.Equals("h") || str.Equals("help"))
             return ((int)e_CommandCodes.CMD_HELP);
-        if (str.Equals("missions") || str.Equals("miss"))
+        if (str.Equals("mission") || str.Equals("miss"))
             return ((int)e_CommandCodes.CMD_MISS);
         return (-1);
     }
@@ -115,7 +115,7 @@ public class text_repl : MonoBehaviour
         fs = new FileSystem(Application.persistentDataPath);
         inputs = inputField.text.Split('\n');
         rowPos = inputs[inputs.Length - 1].Length;
-        missions = new Missions();
+        mission = new Mission();
     }
     void Update()
     {
@@ -223,9 +223,8 @@ public class text_repl : MonoBehaviour
                     print_help();
                     break;
                 case (int)e_CommandCodes.CMD_MISS:
-//                    Debug.Log(jintEvaluator.Evaluate(inputs[1]).ToString());
-                    missions.test(inputs[1], player);
-                    inputField.text += "\n> ";
+					string mission_status = mission.test(player, inputs);
+                    inputField.text += mission_status + "\n> ";
                     break;
                 default:
                     inputField.text += "Command not found\n> ";
