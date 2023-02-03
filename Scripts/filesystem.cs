@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 struct s_FileState
 {
@@ -107,11 +108,45 @@ public class FileSystem
     {
         string tmp = "";
         foreach (string file in Directory.GetFiles(filepath))
-            tmp += file + " ";
+        {
+            if (file != "")
+            {
+                #if UNITY_WEBGL || UNITY_ANDROID || UNITY_IOS
+                    tmp += file.Split("/").Last();
+                #elif UNITY_STANDALONE
+                    tmp += dir.Split("\\").Last();
+                #endif
+            }
+        }
         return (tmp);
     }
 
     public string GetDirectories()
+    {
+        string tmp = "";
+        foreach (string dir in Directory.GetDirectories(filepath))
+        {
+            if (dir != "")
+            {
+                #if UNITY_WEBGL || UNITY_ANDROID || UNITY_IOS
+                    tmp += dir.Split("/").Last();
+                #elif UNITY_STANDALONE
+                    tmp += dir.Split("\\").Last();
+                #endif
+            }
+        }
+
+        return (tmp);
+    }
+    public string   GetFilesWithPath()
+    {
+        string tmp = "";
+        foreach (string file in Directory.GetFiles(filepath))
+            tmp += file;
+        return (tmp);
+    }
+
+    public string GetDirectoriesWithPath()
     {
         string tmp = "";
         foreach (string dir in Directory.GetDirectories(filepath))
