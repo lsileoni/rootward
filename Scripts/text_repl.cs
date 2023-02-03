@@ -19,6 +19,8 @@ enum e_CommandCodes : int
     CMD_MKDIR,
     CMD_ED,
     CMD_HELP,
+    CMD_NMAP,
+    CMD_MAN,
     CMD_MISS
 }
 
@@ -83,6 +85,8 @@ public class text_repl : MonoBehaviour
             return ((int)e_CommandCodes.CMD_HELP);
         if (str.Equals("mission") || str.Equals("miss"))
             return ((int)e_CommandCodes.CMD_MISS);
+        if (str.Equals("m") || str.Equals("man"))
+            return ((int)e_CommandCodes.CMD_MAN);
         return (-1);
     }
     private void print_help()
@@ -97,7 +101,31 @@ public class text_repl : MonoBehaviour
         inputField.text += "'js' run javascripts\n";
         inputField.text += "'ed' 'vim' 'emacs' text editors\n";
         inputField.text += "'h' 'help' help\n";
+        inputField.text += "'m' 'man' manual pages for commands\n";
         inputField.text += "> ";
+    }
+    private void man_pages(string argument)
+    {
+        if (argument == "clear")
+            inputField.text += "clears the terminal\nformat: clear [NO ARGUMENTS]\n> ";
+        else if (argument == "ping")
+            inputField.text += "pongs\nformat: ping [NO ARGUMENTS]\n> ";
+        else if (argument == "pwd")
+            inputField.text += "prints the current working directory\nformat: pwd [NO ARGUMENTS]\nexample: \n> pwd\n{DIRECTORY_HERE}\n> ";
+        else if (argument == "cd")
+            inputField.text += "stands for 'change directory'\nformat: cd [DIRECTORY NAME OR ..]\nexample: \n> cd TWO\n{CHANGES DIRECTORY TO TWO}\n> ";
+        else if (argument == "mkdir")
+            inputField.text += "makes a directory in the current directory\nformat: mkdir [DIRECTORY NAME]\nexample: \n> mkdir TWO\n{MAKES DIRECTORY NAMED TWO}\n> ";
+        else if (argument == "ls")
+            inputField.text += "lists all files and directories in current working directory\nformat: ls [NO ARGUMENTS]\nexample: \n> ls\nFiles: file.txt secret.txt\nFolders:super_secret_folder\n> ";
+        else if (argument == "cat")
+            inputField.text += "shows the contents of a file\nformat: cat [FILENAME]\nexample: \n> cat secret_file.txt\nsuper secret content\n> ";
+        else if (argument == "js")
+            inputField.text += "evaluates a javascript program\nformat: js [FILENAME]\nexample: \n> cat example.js\nconsole.log(1 + 1);\n> js example.js\n2\n> ";
+        else if (argument == "ed")
+            inputField.text += "standard text editor on the system\nformat: ed [FILENAME]\nexample: \nopen file.txt with ed, which contains 'one'\nedit this text to say 'two' manually with the arrow keys on your keyboard\nonce edited, save the file by pressing your left control key\n> ";
+        else
+            inputField.text += "command does not have a manual page\n> ";
     }
     void Start()
     {
@@ -140,6 +168,9 @@ public class text_repl : MonoBehaviour
                 case (int)e_CommandCodes.CMD_PWD:
                     inputField.text += fs.GetCurrentDirectory();
                     inputField.text += "\n> ";
+                    break;
+                case (int)e_CommandCodes.CMD_MAN:
+                    man_pages(cur_cmd.argument);
                     break;
                 case (int)e_CommandCodes.CMD_PING:
                     inputField.text += "pong\n> ";
