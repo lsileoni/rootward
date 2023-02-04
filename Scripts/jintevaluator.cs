@@ -11,17 +11,25 @@ public class JintEvaluator : MonoBehaviour
 
     public JintEvaluator(TMP_InputField inputField)
     {
-        engine = new Engine().SetValue("log", new Action<object>(Debug.Log));
+        engine = new Engine(options =>
+        {
+            options.TimeoutInterval(TimeSpan.FromSeconds(4));
+            options.MaxStatements(1000);
+        }).SetValue("log", new Action<object>(Debug.Log));
         engine.SetValue("println", new Action<object>(x => inputField.text += x.ToString() + "\n"));
         engine.SetValue("print", new Action<object>(x => inputField.text += x.ToString()));
         this.inputField = inputField;
     }
     public JintEvaluator()
     {
-        engine = new Engine().SetValue("log", new Action<object>(Debug.Log));
+        engine = new Engine(options =>
+        {
+            options.TimeoutInterval(TimeSpan.FromSeconds(4));
+            options.MaxStatements(1000);
+        }).SetValue("log", new Action<object>(Debug.Log));
         engine.SetValue("println", new Action<object>(x => inputField.text += x.ToString() + "\n"));
         engine.SetValue("print", new Action<object>(x => inputField.text += x.ToString()));
-    }    
+    }
 
     void Start()
     {

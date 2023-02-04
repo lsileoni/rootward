@@ -22,8 +22,9 @@ enum e_CommandCodes : int
     CMD_HELP,
     CMD_NMAP,
     CMD_MAN,
-	CMD_SUB,
+    CMD_SUB,
     CMD_MISS
+    CMD_SSH
 }
 
 struct s_Command
@@ -105,6 +106,10 @@ public class text_repl : MonoBehaviour
             return ((int)e_CommandCodes.CMD_MAN);
         if (str.Equals("sub") || str.Equals("submit"))
             return ((int)e_CommandCodes.CMD_SUB);
+        if (str.Equals("n") || str.Equals("nmap"))
+            return ((int)e_CommandCodes.CMD_NMAP);
+        if (str.Equals("s") || str.Equals("ssh"))
+            return ((int)e_CommandCodes.CMD_SSH);
         return (-1);
     }
     private void print_help()
@@ -163,6 +168,11 @@ public class text_repl : MonoBehaviour
 		mission = null;
         inputs = inputField.text.Split('\n');
         rowPos = inputs[inputs.Length - 1].Length;
+        inputField.ActivateInputField();
+        inputField.MoveTextEnd(false);
+        inputField.caretPosition = 0;
+        inputField.stringPosition = 3;
+        textComponent.ForceMeshUpdate();
     }
     void Update()
     {
@@ -247,6 +257,11 @@ public class text_repl : MonoBehaviour
                         inputField.text += "File not found!\n> ";
                         break;
                     }
+                    if (fs.GetFileContent(cur_cmd.argument).Length > 2048)
+                    {
+                        inputField.text += "File too large to be displayed!\n> ";
+                        break;
+                    }
                     inputField.text += fs.GetFileContent(cur_cmd.argument);
                     inputField.text += "\n> ";
                     break;
@@ -314,6 +329,18 @@ public class text_repl : MonoBehaviour
 						inputField.text += "answer: KO :(" + mission.statement;
 					}
 					inputField.text += "\n> ";
+                    break;
+                case (int)e_CommandCodes.CMD_NMAP:
+                    inputField.text += fs.GetRootDirectories();
+                    inputField.text += "\n> ";
+                    break;
+                case (int)e_CommandCodes.CMD_SSH:
+                    tmp = fs.GoToRelativeRootFilepath(cur_cmd.argument);
+                    if (tmp == "success")
+                        inputField.text += "Succesfully SSH'd into ip address " + cur_cmd.argument;
+                    else
+                        inputField.text += "Was not able to SSH into ip address " + cur_cmd.argument;
+                    inputField.text += "\n> ";
                     break;
                 default:
                     inputField.text += "Command not found 'h' for help\n> ";
