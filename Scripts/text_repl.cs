@@ -60,7 +60,8 @@ public class text_repl : MonoBehaviour
     private s_Command cur_cmd;
     private s_File edited_file;
     private Mission mission;
-    // Update is called once per frame
+	private Dictionary<string, Mission> mission_table;
+
     private int command_check(string str)
     {
         if (str.Equals("clear"))
