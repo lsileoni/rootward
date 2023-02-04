@@ -13,6 +13,8 @@ public class FileSystem
 {
     private string filepath;
     private string origin;
+    private string root_name;
+    private string root_path;
 
     public string GetCurrentDirectory()
     {
@@ -21,12 +23,24 @@ public class FileSystem
 
     public FileSystem(string start)
     {
-        filepath = start;
         origin = start;
-        if (!Directory.Exists(start + "/one"))
-            Directory.CreateDirectory(start + "/one");
-        if (!File.Exists(start + "/one/instructions.txt"))
-            createFile(start + "/one/instructions.txt", "Welcome to 127.0.0.1; nothing like home!");
+        root_name = "YwzZsc3fNP";
+        root_path = start + "/" + root_name;
+        if (!Directory.Exists(root_path))
+            Directory.CreateDirectory(root_path);
+        if (!Directory.Exists(root_path + "/127.0.0.1"))
+            Directory.CreateDirectory(root_path + "/127.0.0.1");
+        filepath = root_path + "/127.0.0.1";
+        if (!File.Exists(root_path + "/127.0.0.1/instructions.txt"));
+            createFile(root_path + "/127.0.0.1/instructions.txt", "Welcome to 127.0.0.1, ain't nothing like home.\n\nType h for help\n\n");
+        if (!Directory.Exists(root_path + "/93.1.183.174"))
+            Directory.CreateDirectory(root_path + "/93.1.183.174");
+        if (!Directory.Exists(root_path + "/248.185.51.148"))
+            Directory.CreateDirectory(root_path + "/248.185.51.148");
+        if (!Directory.Exists(root_path + "/136.13.38.91"))
+            Directory.CreateDirectory(root_path + "/136.13.38.91");
+        if (!Directory.Exists(root_path + "/228.109.159.41"))
+            Directory.CreateDirectory(root_path + "/228.109.159.41");
     }
 
     public void createFile(string path, string content)
@@ -39,6 +53,15 @@ public class FileSystem
                 fs.Write(info, 0, info.Length);
             }
         }
+    }
+
+    public string GetAbsoluteRootFilepath ()
+    {
+        return (root_path);
+    }
+    public string GetRelativeRootFilepath ()
+    {
+        return (filepath.Split(root_path).Last());
     }
 
     public void removeFile(string filename)
@@ -140,6 +163,35 @@ public class FileSystem
 
         return (tmp);
     }
+    public string GetRootDirectories()
+    {
+        string tmp = "";
+        foreach (string dir in Directory.GetDirectories(root_path))
+        {
+            if (dir != "")
+            {
+                #if UNITY_WEBGL || UNITY_ANDROID || UNITY_IOS
+                    tmp += dir.Split("/").Last();
+                #elif UNITY_STANDALONE_WIN
+                    tmp += dir.Split("\\").Last();
+                #endif
+                tmp += " ";
+            }
+        }
+
+        return (tmp);
+    }
+
+    public string GoToRelativeRootFilepath(string ip)
+    {
+        if (Directory.Exists(root_path + "/" + ip))
+        {
+            filepath = root_path + "/" + ip;
+            return ("success");
+        }
+        return ("failure");
+    }
+
     public string   GetFilesWithPath()
     {
         string tmp = "";
