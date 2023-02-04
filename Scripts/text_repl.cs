@@ -145,7 +145,11 @@ public class text_repl : MonoBehaviour
         fs = new FileSystem(Application.persistentDataPath);
         inputs = inputField.text.Split('\n');
         rowPos = inputs[inputs.Length - 1].Length;
-        mission = new Mission();
+		    mission_table = new Dictionary<string, Mission>();
+		    mission_table.Add("42", new Mission("42"));
+		    mission = mission_table["42"];
+		    mission.set_statement("problem", "submit", "reward");
+		    mission = null;
     }
     void Update()
     {
@@ -266,8 +270,15 @@ public class text_repl : MonoBehaviour
                     print_help();
                     break;
                 case (int)e_CommandCodes.CMD_MISS:
-					string mission_status = mission.test(player, inputs);
-                    inputField.text += mission_status + "\n> ";
+					if (inputs.Length > 1)
+					{
+						if (mission_table.ContainsKey(inputs[1]))
+						{
+							mission = mission_table[inputs[1]];
+		                    inputField.text += mission.statement;
+						}
+					}
+					inputField.text += "\n> ";
                     break;
                 default:
                     inputField.text += "Command not found\n> ";
