@@ -60,7 +60,8 @@ public class text_repl : MonoBehaviour
     private s_Command cur_cmd;
     private s_File edited_file;
     private Mission mission;
-    // Update is called once per frame
+	private Dictionary<string, Mission> mission_table;
+
     private int command_check(string str)
     {
         if (str.Equals("clear"))
@@ -145,7 +146,12 @@ public class text_repl : MonoBehaviour
         fs = new FileSystem(Application.persistentDataPath);
         inputs = inputField.text.Split('\n');
         rowPos = inputs[inputs.Length - 1].Length;
-        mission = new Mission();
+		mission_table = new Dictionary<string, Mission>();
+		mission_table.Add("42", new Mission("42"));
+		mission = null;
+		mission = mission_table["42"];
+		mission.set_statement("problem", "submit", "reward");
+		mission = null;
     }
     void Update()
     {
@@ -164,6 +170,17 @@ public class text_repl : MonoBehaviour
             else
                 cur_cmd.argument = "";
             switch (command_check(cur_cmd.cmd)) {
+                case (int)e_CommandCodes.CMD_MISS:
+					if (inputs.Length > 1)
+					{
+						if (mission_table.ContainsKey(inputs[1]))
+						{
+							mission = mission_table[inputs[1]];
+		                    inputField.text += mission.statement;
+						}
+					}
+					inputField.text += "\n> ";
+                    break;
                 case (int)e_CommandCodes.CMD_CLEAR:
                     inputField.text = "> ";
                     break;
@@ -263,10 +280,6 @@ public class text_repl : MonoBehaviour
                     break;
                 case (int)e_CommandCodes.CMD_HELP:
                     print_help();
-                    break;
-                case (int)e_CommandCodes.CMD_MISS:
-					string mission_status = mission.test(player, inputs);
-                    inputField.text += mission_status + "\n> ";
                     break;
                 default:
                     inputField.text += "Command not found\n> ";
