@@ -2,40 +2,40 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public class Mission
 {
     public JintEvaluator jint;
-	public ArrayList open_ips;
+	public string ip;
+	public string statement;
 
-    public Mission()
+    public Mission(string m_ip)
     {
         jint = new JintEvaluator();
-		open_ips = new ArrayList();
-		open_ips.Add("42");
-		open_ips.Add("69");
+		ip = m_ip;
+		statement = "";
     }
-
-
-    public bool available_mission(string ip)
+	public void set_statement(string problem, string validation, string reward)
 	{
-		return (open_ips.Contains(ip));
-	}
-
-	public string mission_statement(string ip)
-	{
-		string statement = "MISSION STATEMENT\n" +
+		statement = "MISSION STATEMENT\n" +
 							"=================\n" +
-							"problem: " +  "big problem\n\n" +
-							"validation: " + "no clue\n\n" +
-							"reward: " + "great reward\n";
-		return (statement);
+							"problem: " + problem  + "\n\n" +
+							"validation: " + validation + "\n\n" +
+							"reward: " + reward + "\n";
 	}
+
+    public bool available_mission(string m_ip)
+	{
+		return (ip == m_ip);
+	}
+
 	public string test(Player player, string[] args)
 	{
 		if (args.Length == 1)
 			return ("usage: mission MACHINE_IP");
-		if (available_mission(args[1]) && args.Length == 2)
-			return (mission_statement(args[1]));
+		// if (available_mission(args[1]) && args.Length == 2)
+		// 	return (mission_statement(args[1]));
 		return ("unknown mission\n");
 	}
 }
