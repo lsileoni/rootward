@@ -61,7 +61,8 @@ public class text_repl : MonoBehaviour
     private s_Command cur_cmd;
     private s_File edited_file;
     private Mission mission;
-    // Update is called once per frame
+	private Dictionary<string, Mission> mission_table;
+
     private int command_check(string str)
     {
         if (str.Equals("clear"))
@@ -150,7 +151,6 @@ public class text_repl : MonoBehaviour
         fs = new FileSystem(Application.persistentDataPath);
         inputs = inputField.text.Split('\n');
         rowPos = inputs[inputs.Length - 1].Length;
-        mission = new Mission("42");
         inputField.ActivateInputField();
         inputField.MoveTextEnd(false);
         inputField.caretPosition = 0;
@@ -281,8 +281,15 @@ public class text_repl : MonoBehaviour
                     print_help();
                     break;
                 case (int)e_CommandCodes.CMD_MISS:
-					string mission_status = mission.test(player, inputs);
-                    inputField.text += mission_status + "\n> ";
+					if (inputs.Length > 1)
+					{
+						if (mission_table.ContainsKey(inputs[1]))
+						{
+							mission = mission_table[inputs[1]];
+		                    inputField.text += mission.statement;
+						}
+					}
+					inputField.text += "\n> ";
                     break;
                 case (int)e_CommandCodes.CMD_NMAP:
                     inputField.text += fs.GetRootDirectories();
