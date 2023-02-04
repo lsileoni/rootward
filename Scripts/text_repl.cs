@@ -22,7 +22,8 @@ enum e_CommandCodes : int
     CMD_HELP,
     CMD_NMAP,
     CMD_MAN,
-    CMD_MISS,
+    CMD_SUB,
+    CMD_MISS
     CMD_SSH
 }
 
@@ -63,6 +64,18 @@ public class text_repl : MonoBehaviour
     private Mission mission;
 	private Dictionary<string, Mission> mission_table;
 
+	private bool check_submit(Mission mission)
+	{
+		if (mission == null)
+			return (false);
+		if (mission.ip == "42")
+		{
+			if (mission.jint.Evaluate(fs.GetFileContent("abc.js"), inputField).ToString() == mission.expected)
+				return (true);
+		}
+		return (false);
+	}
+
     private int command_check(string str)
     {
         if (str.Equals("clear"))
@@ -91,6 +104,8 @@ public class text_repl : MonoBehaviour
             return ((int)e_CommandCodes.CMD_MISS);
         if (str.Equals("m") || str.Equals("man"))
             return ((int)e_CommandCodes.CMD_MAN);
+        if (str.Equals("sub") || str.Equals("submit"))
+            return ((int)e_CommandCodes.CMD_SUB);
         if (str.Equals("n") || str.Equals("nmap"))
             return ((int)e_CommandCodes.CMD_NMAP);
         if (str.Equals("s") || str.Equals("ssh"))
@@ -149,6 +164,8 @@ public class text_repl : MonoBehaviour
         edited_file = new s_File();
         jintEvaluator = new JintEvaluator(inputField);
         fs = new FileSystem(Application.persistentDataPath);
+		mission_table = new Dictionary<string, Mission>();
+		mission = null;
         inputs = inputField.text.Split('\n');
         rowPos = inputs[inputs.Length - 1].Length;
         inputField.ActivateInputField();
@@ -281,13 +298,35 @@ public class text_repl : MonoBehaviour
                     print_help();
                     break;
                 case (int)e_CommandCodes.CMD_MISS:
-					if (inputs.Length > 1)
+					if (!mission_table.ContainsKey(fs.GetCurrentDirectory()))
+		                inputField.text += "no mission for this machine";
+					else
 					{
-						if (mission_table.ContainsKey(inputs[1]))
-						{
-							mission = mission_table[inputs[1]];
-		                    inputField.text += mission.statement;
-						}
+						mission = mission_table[fs.GetCurrentDirectory()];
+						if (mission.completed)
+							inputField.text += "mission requirements fulfilled\n";
+						else
+			                inputField.text += mission.statement;
+					}
+					inputField.text += "\n> ";
+                    break;
+                case (int)e_CommandCodes.CMD_SUB:
+					if (!mission_table.ContainsKey(fs.GetCurrentDirectory()))
+					{
+		                inputField.text += "no mission for this machine\n> ";
+						break;
+					}
+					else
+						mission = mission_table[fs.GetCurrentDirectory()];
+
+					if (check_submit(mission))
+					{
+						mission.completed = true;
+						inputField.text += "answer: OK :D\nreward: " + mission.reward;
+					}
+					else
+					{
+						inputField.text += "answer: KO :(" + mission.statement;
 					}
 					inputField.text += "\n> ";
                     break;
@@ -304,7 +343,7 @@ public class text_repl : MonoBehaviour
                     inputField.text += "\n> ";
                     break;
                 default:
-                    inputField.text += "Command not found\n> ";
+                    inputField.text += "Command not found 'h' for help\n> ";
                     break;
             }
             inputField.MoveTextEnd(false);
