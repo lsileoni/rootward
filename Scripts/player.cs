@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class Player
 {
-	public int current_mission;
 	public int level;
 	public ArrayList functions;
+	public Mission current_mission;
 
 	public Player()
 	{
-		current_mission = 0;
 		level = 0;
 		functions = new ArrayList();
+		current_mission = null;
 	}
 
 }
