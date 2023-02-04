@@ -6,6 +6,7 @@ using Jint;
 using Jint.Native;
 using System.Text.RegularExpressions;
 using System;
+using UnityEngine.UI;
 
 enum e_CommandCodes : int
 {
@@ -46,6 +47,7 @@ public class text_repl : MonoBehaviour
 	public Player player;
     public TMP_Text textComponent;
     public TMP_InputField inputField;
+    public ScrollRect scrollRect;
     private FileSystem fs;
     private string[] inputs;
     public int rowPos;
@@ -146,7 +148,6 @@ public class text_repl : MonoBehaviour
         rowPos = inputs[inputs.Length - 1].Length;
 		mission_table = new Dictionary<string, Mission>();
 		mission_table.Add("42", new Mission("42"));
-		mission = null;
 		mission = mission_table["42"];
 		mission.set_statement("problem", "submit", "reward");
 		mission = null;
@@ -168,17 +169,6 @@ public class text_repl : MonoBehaviour
             else
                 cur_cmd.argument = "";
             switch (command_check(cur_cmd.cmd)) {
-                case (int)e_CommandCodes.CMD_MISS:
-					if (inputs.Length > 1)
-					{
-						if (mission_table.ContainsKey(inputs[1]))
-						{
-							mission = mission_table[inputs[1]];
-		                    inputField.text += mission.statement;
-						}
-					}
-					inputField.text += "\n> ";
-                    break;
                 case (int)e_CommandCodes.CMD_CLEAR:
                     inputField.text = "> ";
                     break;
@@ -201,7 +191,13 @@ public class text_repl : MonoBehaviour
                         inputField.text = fs.GetFileContent(cur_cmd.argument);
                         edited_file.reading = true;
                         edited_file.filename = cur_cmd.argument;
-                        inputField.MoveTextEnd(true);
+                        //scrollRect.verticalNormalizedPosition = 1;
+                        inputField.ActivateInputField();
+                        inputField.MoveTextStart(false);
+                        inputField.MoveToStartOfLine(false, false);
+                        inputField.ProcessEvent(Event.KeyboardEvent("left"));
+                        textComponent.ForceMeshUpdate();
+                        inputField.DeactivateInputField();
                     }
                     else
                     {
@@ -263,13 +259,27 @@ public class text_repl : MonoBehaviour
                         break;
                     }
                     code = fs.GetFileContent(cur_cmd.argument);
-                    result = jintEvaluator.Evaluate(code).ToString();
-                    if (!(result == "null"))
-                        inputField.text += result;
+                    result = jintEvaluator.Evaluate(code, inputField);
+                    if (result != null)
+                    {
+                        if (!(result == "null"))
+                            inputField.text += result;
+                    }
                     inputField.text += "\n> ";
                     break;
                 case (int)e_CommandCodes.CMD_HELP:
                     print_help();
+                    break;
+                case (int)e_CommandCodes.CMD_MISS:
+					if (inputs.Length > 1)
+					{
+						if (mission_table.ContainsKey(inputs[1]))
+						{
+							mission = mission_table[inputs[1]];
+		                    inputField.text += mission.statement;
+						}
+					}
+					inputField.text += "\n> ";
                     break;
                 default:
                     inputField.text += "Command not found\n> ";
@@ -290,7 +300,7 @@ public class text_repl : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.Escape)) {
             string code = "1 + 1";
-            JsValue result = jintEvaluator.Evaluate(code);
+            JsValue result = jintEvaluator.Evaluate(code, inputField);
             Debug.Log(result.ToString());
             inputField.MoveTextEnd(false);
         }
@@ -302,6 +312,7 @@ public class text_repl : MonoBehaviour
                 fs.writeFileContent(edited_file.filename, inputField.text);
                 inputField.text = history;
                 edited_file.reading = false;
+                inputField.MoveTextEnd(false);
             }
         }
         textComponent.ForceMeshUpdate();
