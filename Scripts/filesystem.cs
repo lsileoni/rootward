@@ -114,7 +114,7 @@ public class FileSystem
                 #if UNITY_WEBGL || UNITY_ANDROID || UNITY_IOS
                     tmp += file.Split("/").Last();
                 #elif UNITY_STANDALONE_WIN
-                    tmp += dir.Split("\\").Last();
+                    tmp += file.Split("\\").Last();
                 #endif
                 tmp += " ";
             }
