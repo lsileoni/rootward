@@ -60,8 +60,7 @@ public class text_repl : MonoBehaviour
     private s_Command cur_cmd;
     private s_File edited_file;
     private Mission mission;
-	private Dictionary<string, Mission> mission_table;
-
+    // Update is called once per frame
     private int command_check(string str)
     {
         if (str.Equals("clear"))
@@ -146,11 +145,11 @@ public class text_repl : MonoBehaviour
         fs = new FileSystem(Application.persistentDataPath);
         inputs = inputField.text.Split('\n');
         rowPos = inputs[inputs.Length - 1].Length;
-		mission_table = new Dictionary<string, Mission>();
-		mission_table.Add("42", new Mission("42"));
-		mission = mission_table["42"];
-		mission.set_statement("problem", "submit", "reward");
-		mission = null;
+		    mission_table = new Dictionary<string, Mission>();
+		    mission_table.Add("42", new Mission("42"));
+		    mission = mission_table["42"];
+		    mission.set_statement("problem", "submit", "reward");
+		    mission = null;
     }
     void Update()
     {

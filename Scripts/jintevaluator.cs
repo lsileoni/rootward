@@ -28,8 +28,17 @@ public class JintEvaluator : MonoBehaviour
         inputField = GetComponent<TMP_InputField>();
     }
 
-    public JsValue Evaluate(string code)
+    public JsValue Evaluate(string code, TMP_InputField inputField)
     {
-        return engine.Execute(code).GetCompletionValue();
+        JsValue intermediate_result = null;
+        try
+        {
+            intermediate_result = engine.Execute(code).GetCompletionValue();
+        }
+        catch
+        {
+            inputField.text += "Invalid Javascript";
+        }
+        return (intermediate_result);
     }
 }
