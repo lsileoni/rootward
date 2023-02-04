@@ -32,10 +32,10 @@ public class Mission
 	}
 	public string test(Player player, string[] args)
 	{
+		if (args.Length == 1)
+			return ("usage: mission MACHINE_IP");
 		if (available_mission(args[1]) && args.Length == 2)
-		{
 			return (mission_statement(args[1]));
-		}
 		return ("unknown mission\n");
 	}
 }
