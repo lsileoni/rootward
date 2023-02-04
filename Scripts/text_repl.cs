@@ -23,7 +23,7 @@ enum e_CommandCodes : int
     CMD_NMAP,
     CMD_MAN,
     CMD_SUB,
-    CMD_MISS
+    CMD_MISS,
     CMD_SSH
 }
 
