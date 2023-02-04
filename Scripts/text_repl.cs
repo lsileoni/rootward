@@ -139,7 +139,7 @@ public class text_repl : MonoBehaviour
         cur_cmd = new s_Command();
         result = null;
         edited_file = new s_File();
-        jintEvaluator = new JintEvaluator();
+        jintEvaluator = new JintEvaluator(inputField);
         fs = new FileSystem(Application.persistentDataPath);
         inputs = inputField.text.Split('\n');
         rowPos = inputs[inputs.Length - 1].Length;
@@ -246,8 +246,9 @@ public class text_repl : MonoBehaviour
                         break;
                     }
                     code = fs.GetFileContent(cur_cmd.argument);
-                    result = jintEvaluator.Evaluate(code);
-                    inputField.text += result.ToString();
+                    result = jintEvaluator.Evaluate(code).ToString();
+                    if (!(result == "null"))
+                        inputField.text += result;
                     inputField.text += "\n> ";
                     break;
                 case (int)e_CommandCodes.CMD_HELP:

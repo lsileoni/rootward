@@ -113,9 +113,10 @@ public class FileSystem
             {
                 #if UNITY_WEBGL || UNITY_ANDROID || UNITY_IOS
                     tmp += file.Split("/").Last();
-                #elif UNITY_STANDALONE
+                #elif UNITY_STANDALONE_WIN
                     tmp += dir.Split("\\").Last();
                 #endif
+                tmp += " ";
             }
         }
         return (tmp);
@@ -130,9 +131,10 @@ public class FileSystem
             {
                 #if UNITY_WEBGL || UNITY_ANDROID || UNITY_IOS
                     tmp += dir.Split("/").Last();
-                #elif UNITY_STANDALONE
+                #elif UNITY_STANDALONE_WIN
                     tmp += dir.Split("\\").Last();
                 #endif
+                tmp += " ";
             }
         }
 
