@@ -6,6 +6,7 @@ using Jint;
 using Jint.Native;
 using System.Text.RegularExpressions;
 using System;
+using UnityEngine.UI;
 
 enum e_CommandCodes : int
 {
@@ -46,6 +47,7 @@ public class text_repl : MonoBehaviour
 	public Player player;
     public TMP_Text textComponent;
     public TMP_InputField inputField;
+    public ScrollRect scrollRect;
     private FileSystem fs;
     private string[] inputs;
     public int rowPos;
@@ -184,7 +186,12 @@ public class text_repl : MonoBehaviour
                         inputField.text = fs.GetFileContent(cur_cmd.argument);
                         edited_file.reading = true;
                         edited_file.filename = cur_cmd.argument;
-                        inputField.MoveTextEnd(true);
+                        //scrollRect.verticalNormalizedPosition = 1;
+                        inputField.ActivateInputField();
+                        inputField.MoveToStartOfLine(false, false);
+                        inputField.ProcessEvent(Event.KeyboardEvent("left"));
+                        textComponent.ForceMeshUpdate();
+                        inputField.DeactivateInputField();
                     }
                     else
                     {
@@ -246,9 +253,12 @@ public class text_repl : MonoBehaviour
                         break;
                     }
                     code = fs.GetFileContent(cur_cmd.argument);
-                    result = jintEvaluator.Evaluate(code).ToString();
-                    if (!(result == "null"))
-                        inputField.text += result;
+                    result = jintEvaluator.Evaluate(code, inputField);
+                    if (result != null)
+                    {
+                        if (!(result == "null"))
+                            inputField.text += result;
+                    }
                     inputField.text += "\n> ";
                     break;
                 case (int)e_CommandCodes.CMD_HELP:
@@ -277,7 +287,7 @@ public class text_repl : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.Escape)) {
             string code = "1 + 1";
-            JsValue result = jintEvaluator.Evaluate(code);
+            JsValue result = jintEvaluator.Evaluate(code, inputField);
             Debug.Log(result.ToString());
             inputField.MoveTextEnd(false);
         }
@@ -289,6 +299,7 @@ public class text_repl : MonoBehaviour
                 fs.writeFileContent(edited_file.filename, inputField.text);
                 inputField.text = history;
                 edited_file.reading = false;
+                inputField.MoveTextEnd(false);
             }
         }
         textComponent.ForceMeshUpdate();
