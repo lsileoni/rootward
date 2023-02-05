@@ -31,6 +31,14 @@ public class FileSystem
         if (!Directory.Exists(root_path + "/127.0.0.1"))
             Directory.CreateDirectory(root_path + "/127.0.0.1");
         filepath = root_path + "/127.0.0.1";
+        if (!Directory.Exists(root_path + "/192.168.1.1"))
+            Directory.CreateDirectory(root_path + "/192.168.1.1");
+        if (!Directory.Exists(root_path + "/192.168.1.2"))
+            Directory.CreateDirectory(root_path + "/192.168.1.2");
+        if (!Directory.Exists(root_path + "/192.168.1.3"))
+            Directory.CreateDirectory(root_path + "/192.168.1.3");
+        if (!Directory.Exists(root_path + "/192.168.1.4"))
+            Directory.CreateDirectory(root_path + "/192.168.1.4");
         if (!File.Exists(root_path + "/127.0.0.1/instructions.txt"));
             createFile(root_path + "/127.0.0.1/instructions.txt", "Welcome to 127.0.0.1, ain't nothing like home.\n\nType h for help\n\n");
         if (!Directory.Exists(root_path + "/93.1.183.174"))
@@ -49,7 +57,7 @@ public class FileSystem
         {
             using (FileStream fs = File.Create(path))
             {
-                Byte[] info = new UTF8Encoding(true).GetBytes(content);
+                byte[] info = new UTF8Encoding(true).GetBytes(content);
                 fs.Write(info, 0, info.Length);
             }
         }
@@ -171,9 +179,9 @@ public class FileSystem
             if (dir != "")
             {
                 #if UNITY_WEBGL || UNITY_ANDROID || UNITY_IOS
-                    tmp += dir.Split("/").Last();
+                    tmp += dir.Split("/").Last() + "\n";
                 #elif UNITY_STANDALONE_WIN
-                    tmp += dir.Split("\\").Last();
+                    tmp += dir.Split("\\").Last() + "\n";
                 #endif
                 tmp += " ";
             }

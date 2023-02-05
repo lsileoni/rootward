@@ -123,6 +123,8 @@ public class text_repl : MonoBehaviour
         inputField.text += "'cat' list contents\n";
         inputField.text += "'js' run javascripts\n";
         inputField.text += "'ed' 'vim' 'emacs' text editors\n";
+        inputField.text += "'n' 'nmap' show list of available network devices\n";
+        inputField.text += "'s' 'ssh' connect into a remote machine securely\n";
         inputField.text += "'h' 'help' help\n";
         inputField.text += "'m' 'man' manual pages for commands\n";
         inputField.text += "> ";
@@ -147,6 +149,10 @@ public class text_repl : MonoBehaviour
             inputField.text += "evaluates a javascript program\nformat: js [FILENAME]\nexample: \n> cat example.js\nconsole.log(1 + 1);\n> js example.js\n2\n> ";
         else if (argument == "ed")
             inputField.text += "standard text editor on the system\nformat: ed [FILENAME]\nexample: \nopen file.txt with ed, which contains 'one'\nedit this text to say 'two' manually with the arrow keys on your keyboard\nonce edited, save the file by pressing your left control key\n> ";
+        else if (argument == "nmap")
+            inputField.text += "command, which maps immediately accessible network devices\nformat: nmap [NO ARGUMENTS]\n> ";
+        else if (argument == "ssh")
+            inputField.text += "establishes a secure shell connection from your machine to the host\nformat: ssh [IP ADDRESS]\n> ";
         else
             inputField.text += "command does not have a manual page\n> ";
     }
@@ -331,10 +337,51 @@ public class text_repl : MonoBehaviour
 					inputField.text += "\n> ";
                     break;
                 case (int)e_CommandCodes.CMD_NMAP:
-                    inputField.text += fs.GetRootDirectories();
+                    string current_directory = fs.GetCurrentDirectory();
+                    string[] root_directories = fs.GetRootDirectories().Split("\n");
+                    if (current_directory.Contains("127.0.0.1"))
+                    {
+                        foreach ( string line in root_directories )
+                        {
+                            if (!line.Contains("192.168.1.2") && !line.Contains("192.168.1.3") && !line.Contains("192.168.1.4"))
+                                inputField.text += line.Trim() + "\n";
+                        }
+                    }
+                    else if (current_directory.Contains("192.168.1.1"))
+                    {
+                        foreach ( string line in root_directories )
+                        {
+                            if (!line.Contains("93.1.183.174")  &&
+                                !line.Contains("248.185.51.148") &&
+                                !line.Contains("136.13.38.91") &&
+                                !line.Contains("228.109.159.41"))
+                                inputField.text += line.Trim() + "\n";
+                        }
+                    }
+                    else if (current_directory.Contains("192.168.1") && !current_directory.Contains("192.168.1.1"))
+                    {
+                        foreach ( string line in root_directories )
+                        {
+                            if (line.Contains("192.168.1.1"))
+                                inputField.text += line.Trim() + "\n";
+                        }
+                    }
+                    else
+                    {
+                        foreach ( string line in root_directories )
+                        {
+                            if (line.Contains("127.0.0.1"))
+                                inputField.text += line.Trim() + "\n";
+                        }
+                    }
                     inputField.text += "\n> ";
                     break;
                 case (int)e_CommandCodes.CMD_SSH:
+                    if (cur_cmd.argument == "")
+                    {
+                        inputField.text += "Not enough arguments!\n> ";
+                        break;
+                    }
                     tmp = fs.GoToRelativeRootFilepath(cur_cmd.argument);
                     if (tmp == "success")
                         inputField.text += "Succesfully SSH'd into ip address " + cur_cmd.argument;
@@ -348,7 +395,7 @@ public class text_repl : MonoBehaviour
             }
             inputField.MoveTextEnd(false);
         }
-        else if (Input.GetKeyDown(KeyCode.Backspace) && !edited_file.reading) {
+        else if ((Input.GetKey(KeyCode.Backspace) || (Input.GetKeyDown(KeyCode.Backspace))) && !edited_file.reading) {
             inputs = inputField.text.Split('\n');
             rowPos = inputs[inputs.Length - 1].Length;
             if (rowPos == 1) {
@@ -356,8 +403,10 @@ public class text_repl : MonoBehaviour
                 inputField.MoveTextEnd(false);
             }
         }
-        else if ((Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.UpArrow)) && !edited_file.reading) {
-                inputField.MoveTextEnd(false);
+        else if (((Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKey(KeyCode.LeftArrow))
+                || (Input.GetKeyDown(KeyCode.UpArrow)) || Input.GetKey(KeyCode.UpArrow) 
+                && !edited_file.reading)) {
+            inputField.MoveTextEnd(false);
         }
         else if (Input.GetKeyDown(KeyCode.Escape)) {
             string code = "1 + 1";
