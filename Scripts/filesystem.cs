@@ -42,7 +42,7 @@ public class FileSystem
         if (!Directory.Exists(root_path + "/192.168.1.4"))
             Directory.CreateDirectory(root_path + "/192.168.1.4");
         if (!File.Exists(root_path + "/127.0.0.1/instructions.txt"));
-            createFile(root_path + "/127.0.0.1/instructions.txt", "Welcome to 127.0.0.1, ain't nothing like home.\n\nType h for help\n\n");
+            createFile(root_path + "/127.0.0.1/instructions.txt", "Welcome to 127.0.0.1.\n\nThis is a machine of TEKTRONIX INCORPORATED, if you wish to escape please consult the mainframe.\n\n");
 
         if (!Directory.Exists(root_path + "/93.1.183.174"))
             Directory.CreateDirectory(root_path + "/93.1.183.174");
@@ -65,8 +65,6 @@ public class FileSystem
             createFile(root_path + "/248.185.51.148/hello_world.js", "let msg = \"Hello, world!\"\nprintln(message);");
         if (!Directory.Exists(root_path + "/136.13.38.91"))
             Directory.CreateDirectory(root_path + "/136.13.38.91");
-        if (!Directory.Exists(root_path + "/228.109.159.41"))
-            Directory.CreateDirectory(root_path + "/228.109.159.41");
         if (!Directory.Exists(root_path + "/192.168.1.1/routing"))
             Directory.CreateDirectory(root_path + "/192.168.1.1/routing");
         if (!Directory.Exists(root_path + "/192.168.1.4/mainframe"))

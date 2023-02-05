@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System;
 using UnityEngine.UI;
 using System.Linq;
+using System.IO;
 
 enum e_CommandCodes : int
 {
@@ -27,7 +28,8 @@ enum e_CommandCodes : int
     CMD_MISS,
     CMD_SSH,
     CMD_T,
-    CMD_P
+    CMD_P,
+    CMD_UNHASH
 }
 
 struct s_Command
@@ -140,8 +142,10 @@ public class text_repl : MonoBehaviour
             return ((int)e_CommandCodes.CMD_SSH);
         if (str.Equals("toast") && fs.GetCurrentDirectory().Contains("192.168.1.3"))
             return ((int)e_CommandCodes.CMD_T);
-        if (str.Equals("poweoff") && fs.GetCurrentDirectory().Contains("192.168.1.4"))
+        if (str.Equals("poweroff") && fs.GetCurrentDirectory().Contains("192.168.1.4"))
             return ((int)e_CommandCodes.CMD_P);
+        if (str.Equals("unhash"))
+            return ((int)e_CommandCodes.CMD_UNHASH);
         return (-1);
     }
 
@@ -241,7 +245,7 @@ public class text_repl : MonoBehaviour
                 textComponent.ForceMeshUpdate();
                 password = inputField.text.Split(" ").Last().Trim();
                 Debug.Log("PASSWORD IS: " + password);
-                if ((ssh_target == "192.168.1.1" && password == "crikey") ||
+                if ((ssh_target == "192.168.1.1" && password == "nicholasbomber") ||
                      ((ssh_target == "192.168.1.2") || (ssh_target == "192.168.1.3") || (ssh_target == "192.168.1.4")) && password == "MIXDYNA")
                 {
                     tmp = fs.GoToRelativeRootFilepath(ssh_target);
@@ -282,6 +286,11 @@ public class text_repl : MonoBehaviour
                     inputField.text += "pong\n> ";
                     break;
                 case (int)e_CommandCodes.CMD_ED:
+                    if (Directory.Exists(fs.GetCurrentDirectory() + "/" + cur_cmd.argument))
+                    {
+                        inputField.text += "Can't edit a directory.\n> ";
+                        break;
+                    }
                     if (cur_cmd.argument == "")
                         inputField.text += "Empty argument\n> ";
                     else if (fs.fileExists(cur_cmd.argument))
@@ -492,8 +501,17 @@ public class text_repl : MonoBehaviour
                     inputField.text += "toast is ready!\n4295\n> ";
                     break;
                 case (int)e_CommandCodes.CMD_P:
+                    if (cur_cmd.argument == "")
+                        inputField.text += "the poweroff command requires a safety code\n> ";
                     if (Convert.ToInt64(cur_cmd.argument.Trim()) == (24157817 + 4295 + 1141024))
-                        inputField.text += "Congratulations on completing the enigma, you have achieved rootdom!\nhttps://discord.gg/zb6WDebD\n> ";
+                    {
+                        string discord_invite = "https://discord.gg/"; // Change to your own server
+                        inputField.text += "Congratulations on completing the enigma, you have achieved rootdom!\nhttps://discord.gg/\n> ";
+                    }
+                    break;
+                case (int)e_CommandCodes.CMD_UNHASH:
+                    if (fs.GetCurrentDirectory().Contains("/93.1.183.174/data/hashes"))
+                        inputField.text += "nicholasbomber\n>";
                     break;
                 default:
                     inputField.text += "Command not found 'help' for help\n> ";
