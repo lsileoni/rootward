@@ -28,6 +28,8 @@ public class FileSystem
         root_path = start + "/" + root_name;
         if (!Directory.Exists(root_path))
             Directory.CreateDirectory(root_path);
+                if (!Directory.Exists(root_path))
+            Directory.CreateDirectory(root_path);
         if (!Directory.Exists(root_path + "/127.0.0.1"))
             Directory.CreateDirectory(root_path + "/127.0.0.1");
         filepath = root_path + "/127.0.0.1";
@@ -65,6 +67,24 @@ public class FileSystem
             Directory.CreateDirectory(root_path + "/136.13.38.91");
         if (!Directory.Exists(root_path + "/228.109.159.41"))
             Directory.CreateDirectory(root_path + "/228.109.159.41");
+        if (!Directory.Exists(root_path + "/192.168.1.1/routing"))
+            Directory.CreateDirectory(root_path + "/192.168.1.1/routing");
+        if (!Directory.Exists(root_path + "/192.168.1.4/mainframe"))
+            Directory.CreateDirectory(root_path + "/192.168.1.4/mainframe");
+        if (!File.Exists(root_path + "/192.168.1.1/info.txt"))
+            createFile(root_path + "/192.168.1.1/info.txt", "##DYNAMIX ROUTER\n#PROPERTY OF TEKTRONIX INCORPORATED\n\nCONNECTED MACHINES: 192.168.1.2 - HOSTNAME: TEKTRONIX-PC\nCONNECTED MACHINES: 192.168.1.3 - HOSTNAME: MICROWAVINATOR-9000\nCONNECTED MACHINES: 192.168.1.4 - HOSTNAME: TOASTERTRON\nCONNECTED MACHINES: 192.168.1.5 - HOSTNAME: WD6GNUGC2B");
+        if (!File.Exists(root_path + "/192.168.1.1/sequence.txt"))
+            createFile(root_path + "/192.168.1.1/sequence.txt", "Three challenges, three keys to hold,\nSolve them all, the secrets are told.\nThe first, a 37th twist and turn.\nThe second's a ski, so free and so bright,\nThe final is as prime as time,\nBring them all together, to turn off the light.\nA key to command, with numbers untold,");
+        if (!File.Exists(root_path + "/192.168.1.1/routing/DYNAMIX.txt"))
+            createFile(root_path + "/192.168.1.1/routing/DYNAMIX.txt", "A network of machines, all connected in one place\nThe central router, a master of space\nWith a name that suggests power and might\nThe answer to this riddle, will give you the right\n\nTo connect to the devices, you must solve the clue\nA word made of seven letters, it's up to you\nStart with the third letter of the router's name\nThen count four letters ahead, you'll find the same\n\nDo this for each letter, and don't be afraid\nThe passphrase is the result, when all letters are made");
+        if (!File.Exists(root_path + "/192.168.1.2/TEKTRONIX.txt"))
+            createFile(root_path + "/192.168.1.2/TEKTRONIX.txt", "Tektronix has many oscilloscopes,\nAnd sequences to analyze with probes,\nBut one pattern, though not shown on screens,\nIs a spiral that always will gleam.\nFrom ones, to twos, and then again to threes,\nThis sequence grows with each count, it will please,\nTo those who seek its secrets, it will tell,\nA tale of numbers that ring, like a bell.\nSo take this challenge, and give it a try,\nSee if you can make this sequence fly.\n\n1, 1, 2, 3, 5 ... 37th = ?");
+        if (!File.Exists(root_path + "/192.168.1.3/toast.txt"))
+            createFile(root_path + "/192.168.1.3/toast.txt", "Here's a riddle for you to ponder,\nWith a hex so cursed and blight,\nYou'll turn them into a fry with all your might.\n\nTake each pair, don't you know,\nAnd use their values to make them glow,\nWith characters that you can read,\nAnd form a message that you'll soon need.\n\nJust like a skier glides down the slope,\nSo too your answer will help you hope,\nDecode the hex and set it free.\n\n'74 6f 61 73 74 20 74 68 65 20 74 6f 61 73 74 65 72'");
+        if (!File.Exists(root_path + "/192.168.1.4/mainframe/amazon.txt"))
+            createFile(root_path + "/192.168.1.4/mainframe/amazon.txt", "Numbers that rule with an iron fist,\nChosen by the gods, never to be missed.\nUnder or equal 4242, they hide and play,\nAdding them up, will lead the way.\n\nSeek the ones, with no equal peers,\nTheir kingdom will last, for many years.\nThe sum of these rulers, so rare and divine,\nWill unlock the answer, for all to find.\n\nLet the quest begin, for the wise and true,\nTo uncover the secrets, hidden from view.\n2, 3, 5, 7, 11, and so on,\nFind the sum, and you'll have won.");
+        if (!File.Exists(root_path + "/192.168.1.4/mainframe/olympus.txt"))
+            createFile(root_path + "/192.168.1.4/mainframe/olympus.txt", "I am a fridge, cooling down the room,\nA necessity in the heat of high noon.\nBut when it's time to rest, I must comply,\nAnd follow the command, before I say goodbye.\n\nBut how to do so, is not as clear,\nA secret message, holds the answer dear.\nA string of letters, jumbled and mixed,\nWhen rearranged, the truth will be fixed.\n\nShift the letters to the left or right,\nUntil the message is clear in sight.\n\n'sgd bnllzmc hr onvdqnee'");
     }
 
     public void createFile(string path, string content)
