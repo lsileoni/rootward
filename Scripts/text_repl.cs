@@ -84,9 +84,9 @@ public class text_repl : MonoBehaviour
 			text_check = inputField.text.Split('\n');
 			if (text_check[text_check.Length - 1] != "Invalid Javascript")
 			{
-				inputField.text += "\n";
 				return (true);
 			}
+			inputField.text += "\n";
 		}
 		if (mission.ip == "136.13.38.91")
 		{
@@ -273,7 +273,10 @@ public class text_repl : MonoBehaviour
                     inputField.text += "\n> ";
                     break;
                 case (int)e_CommandCodes.CMD_MAN:
-                    man_pages(cur_cmd.argument);
+					if (inputs.Length == 1)
+	                    inputField.text += "usage: man [COMMAND]\n> ";
+					else
+	                    man_pages(cur_cmd.argument);
                     break;
                 case (int)e_CommandCodes.CMD_PING:
                     inputField.text += "pong\n> ";
@@ -412,13 +415,26 @@ public class text_repl : MonoBehaviour
                 case (int)e_CommandCodes.CMD_NMAP:
                     string current_directory = fs.GetCurrentDirectory();
                     string[] root_directories = fs.GetRootDirectories().Split("\n");
-                    if (current_directory.Contains("127.0.0.1"))
+
+					if (current_directory.Contains("93.1.183.174") || current_directory.Contains("248.185.51.148") || current_directory.Contains("136.13.38.91")
+							&& (!mission_table["93.1.183.174"].completed || !mission_table["136.13.38.91"].completed || !mission_table["248.185.51.148"].completed))
+					{
+                        inputField.text += "127.0.0.1\n";
+					}
+                    else if (current_directory.Contains("127.0.0.1"))
                     {
-                        foreach ( string line in root_directories )
-                        {
-                            if (!line.Contains("192.168.1.2") && !line.Contains("192.168.1.3") && !line.Contains("192.168.1.4"))
-                                inputField.text += line.Trim() + "\n";
-                        }
+						if (!mission_table["93.1.183.174"].completed)
+	                        inputField.text += "93.1.183.174\n";
+						else if (!mission_table["248.185.51.148"].completed || !mission_table["136.13.38.91"].completed)
+	                        inputField.text += "93.1.183.174\n248.185.51.148\n136.13.38.91\n";
+						else
+						{
+	                        foreach ( string line in root_directories )
+	                        {
+	                            if (!line.Contains("192.168.1.2") && !line.Contains("192.168.1.3") && !line.Contains("192.168.1.4"))
+	                                inputField.text += line.Trim() + "\n";
+	                        }
+						}
                     }
                     else if (current_directory.Contains("192.168.1.1"))
                     {
@@ -448,7 +464,7 @@ public class text_repl : MonoBehaviour
                                 inputField.text += line.Trim() + "\n";
                         }
                     }
-                    inputField.text += "\n> ";
+                    inputField.text += "> ";
                     break;
                 case (int)e_CommandCodes.CMD_SSH:
                     if (cur_cmd.argument == "")
