@@ -64,13 +64,21 @@ public class text_repl : MonoBehaviour
     private Mission mission;
 	private Dictionary<string, Mission> mission_table;
 
-	private bool check_submit(Mission mission)
+	private bool check_submit(Mission mission, FileSystem fs)
 	{
-		if (mission == null)
-			return (false);
 		if (mission.ip == "42")
 		{
 			if (mission.jint.Evaluate(fs.GetFileContent("abc.js"), inputField).ToString() == mission.expected)
+				return (true);
+		}
+		if (mission.ip == "93.1.183.174")
+			return (true);
+		if (mission.ip == "248.185.51.148");
+		{
+			string file_path = fs.GetAbsoluteRootFilepath() + "/" + fs.GetMachineRoot() + "/" + "text.txt";
+			Debug.Log(fs.fileInRoot("file.txt"));
+				Debug.Log(fs.GetFileContent(fs.GetRelativeRootFilepath() + "/" + "file.txt"));
+			if (fs.GetFileContentPath(file_path).Trim('"') == "00101010")
 				return (true);
 		}
 		return (false);
@@ -164,8 +172,9 @@ public class text_repl : MonoBehaviour
         edited_file = new s_File();
         jintEvaluator = new JintEvaluator(inputField);
         fs = new FileSystem(Application.persistentDataPath);
+		mission = new Mission("0");
 		mission_table = new Dictionary<string, Mission>();
-		mission = null;
+		mission.init_missions(mission_table);
         inputs = inputField.text.Split('\n');
         rowPos = inputs[inputs.Length - 1].Length;
         inputField.ActivateInputField();
@@ -173,6 +182,7 @@ public class text_repl : MonoBehaviour
         inputField.caretPosition = 0;
         inputField.stringPosition = 3;
         textComponent.ForceMeshUpdate();
+
     }
     void Update()
     {
@@ -298,35 +308,40 @@ public class text_repl : MonoBehaviour
                     print_help();
                     break;
                 case (int)e_CommandCodes.CMD_MISS:
-					if (!mission_table.ContainsKey(fs.GetCurrentDirectory()))
+					if (!mission_table.ContainsKey(fs.GetMachineRoot()))
 		                inputField.text += "no mission for this machine";
 					else
 					{
-						mission = mission_table[fs.GetCurrentDirectory()];
+						mission = mission_table[fs.GetMachineRoot()];
 						if (mission.completed)
-							inputField.text += "mission requirements fulfilled\n";
+							inputField.text += "machine mission completed";
 						else
 			                inputField.text += mission.statement;
 					}
 					inputField.text += "\n> ";
                     break;
                 case (int)e_CommandCodes.CMD_SUB:
-					if (!mission_table.ContainsKey(fs.GetCurrentDirectory()))
+					if (!mission_table.ContainsKey(fs.GetMachineRoot()))
 					{
 		                inputField.text += "no mission for this machine\n> ";
 						break;
 					}
+					else if (mission_table[fs.GetMachineRoot()].completed)
+					{
+						inputField.text += "machine mission completed" + "\n> ";
+						break;
+					}
 					else
-						mission = mission_table[fs.GetCurrentDirectory()];
+						mission = mission_table[fs.GetMachineRoot()];
 
-					if (check_submit(mission))
+					if (check_submit(mission, fs))
 					{
 						mission.completed = true;
 						inputField.text += "answer: OK :D\nreward: " + mission.reward;
 					}
 					else
 					{
-						inputField.text += "answer: KO :(" + mission.statement;
+						inputField.text += "answer: KO :(";
 					}
 					inputField.text += "\n> ";
                     break;
