@@ -149,6 +149,10 @@ public class text_repl : MonoBehaviour
             inputField.text += "evaluates a javascript program\nformat: js [FILENAME]\nexample: \n> cat example.js\nconsole.log(1 + 1);\n> js example.js\n2\n> ";
         else if (argument == "ed")
             inputField.text += "standard text editor on the system\nformat: ed [FILENAME]\nexample: \nopen file.txt with ed, which contains 'one'\nedit this text to say 'two' manually with the arrow keys on your keyboard\nonce edited, save the file by pressing your left control key\n> ";
+        else if (argument == "nmap")
+            inputField.text += "command, which maps immediately accessible network devices\nformat: nmap [NO ARGUMENTS]\n> ";
+        else if (argument == "ssh")
+            inputField.text += "establishes a secure shell connection from your machine to the host\nformat: ssh [IP ADDRESS]\n> ";
         else
             inputField.text += "command does not have a manual page\n> ";
     }
