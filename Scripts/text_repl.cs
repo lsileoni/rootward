@@ -7,6 +7,7 @@ using Jint.Native;
 using System.Text.RegularExpressions;
 using System;
 using UnityEngine.UI;
+using System.Linq;
 
 enum e_CommandCodes : int
 {
@@ -24,7 +25,9 @@ enum e_CommandCodes : int
     CMD_MAN,
     CMD_SUB,
     CMD_MISS,
-    CMD_SSH
+    CMD_SSH,
+    CMD_T,
+    CMD_P
 }
 
 struct s_Command
@@ -60,6 +63,8 @@ public class text_repl : MonoBehaviour
     private string history;
     private JsValue result;
     private s_Command cur_cmd;
+    private bool password_mode;
+    private string ssh_target;
     private s_File edited_file;
     private Mission mission;
 	private Dictionary<string, Mission> mission_table;
@@ -118,6 +123,10 @@ public class text_repl : MonoBehaviour
             return ((int)e_CommandCodes.CMD_NMAP);
         if (str.Equals("s") || str.Equals("ssh"))
             return ((int)e_CommandCodes.CMD_SSH);
+        if (str.Equals("toast") && fs.GetCurrentDirectory().Contains("192.168.1.3"))
+            return ((int)e_CommandCodes.CMD_T);
+        if (str.Equals("poweoff") && fs.GetCurrentDirectory().Contains("192.168.1.4"))
+            return ((int)e_CommandCodes.CMD_P);
         return (-1);
     }
     private void print_help()
@@ -166,6 +175,8 @@ public class text_repl : MonoBehaviour
     }
     void Start()
     {
+        ssh_target = "";
+        password_mode = false;
 		player = new Player();
         textComponent.color = Color.green;
         inputField.text = "> ";
@@ -190,13 +201,36 @@ public class text_repl : MonoBehaviour
         textComponent.ForceMeshUpdate();
 
     }
+    
+    bool checkPassword(string ip)
+    {
+        return (false);
+    }
+
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Plus))
-            inputField.pointSize++;
-        if (Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Minus))
-            inputField.pointSize--;
         if (Input.GetKeyDown(KeyCode.Return) && !edited_file.reading) {
+            if (password_mode)
+            {
+                string password = "";
+                inputField.ActivateInputField();
+                textComponent.ForceMeshUpdate();
+                password = inputField.text.Split(" ").Last().Trim();
+                Debug.Log("PASSWORD IS: " + password);
+                if ((ssh_target == "192.168.1.1" && password == "crikey") ||
+                     ((ssh_target == "192.168.1.2") || (ssh_target == "192.168.1.3") || (ssh_target == "192.168.1.4")) && password == "MIXDYNA")
+                {
+                    tmp = fs.GoToRelativeRootFilepath(ssh_target);
+                    if (tmp == "success")
+                        inputField.text += "Succesfully SSH'd into ip address " + ssh_target;
+                    else
+                        inputField.text += "Was not able to SSH into ip address " + ssh_target;
+                    inputField.text += "\n> ";
+                }
+                else
+                    inputField.text += "Wrong password\n> ";
+                password_mode = false;
+            }
             inputs = inputField.text.Split('>');
             tmp = inputs[inputs.Length - 1].Trim();
             tmp = Regex.Replace(tmp, " {2,}", " ");
@@ -305,7 +339,7 @@ public class text_repl : MonoBehaviour
                     result = jintEvaluator.Evaluate(code, inputField);
                     if (result != null)
                     {
-                        if (!(result == "null"))
+                        if (!(result.ToString() == "null"))
                             inputField.text += result;
                     }
                     inputField.text += "\n> ";
@@ -366,7 +400,8 @@ public class text_repl : MonoBehaviour
                     {
                         foreach ( string line in root_directories )
                         {
-                            if (!line.Contains("93.1.183.174")  &&
+                            if (!line.Contains("192.168.1.1")  &&
+                                !line.Contains("93.1.183.174")  &&
                                 !line.Contains("248.185.51.148") &&
                                 !line.Contains("136.13.38.91") &&
                                 !line.Contains("228.109.159.41"))
@@ -395,14 +430,30 @@ public class text_repl : MonoBehaviour
                     if (cur_cmd.argument == "")
                     {
                         inputField.text += "Not enough arguments!\n> ";
-                        break;
                     }
-                    tmp = fs.GoToRelativeRootFilepath(cur_cmd.argument);
-                    if (tmp == "success")
-                        inputField.text += "Succesfully SSH'd into ip address " + cur_cmd.argument;
+                    else if (cur_cmd.argument.Contains("192.168.1"))
+                    {
+                        password_mode = true;
+                        inputField.text += "\nEnter password: ";
+                        ssh_target = cur_cmd.argument;
+                    }
                     else
-                        inputField.text += "Was not able to SSH into ip address " + cur_cmd.argument;
-                    inputField.text += "\n> ";
+                    {
+                        tmp = fs.GoToRelativeRootFilepath(cur_cmd.argument);
+                        Debug.Log("IN HERE");
+                        if (tmp == "success")
+                            inputField.text += "Succesfully SSH'd into ip address " + cur_cmd.argument;
+                        else
+                            inputField.text += "Was not able to SSH into ip address " + cur_cmd.argument;
+                        inputField.text += "\n> ";
+                    }
+                    break;
+                case (int)e_CommandCodes.CMD_T:
+                    inputField.text += "toast is ready!\n4295\n> ";
+                    break;
+                case (int)e_CommandCodes.CMD_P:
+                    if (Convert.ToInt64(cur_cmd.argument.Trim()) == (24157817 + 4295 + 1141024))
+                        inputField.text += "Congratulations on completing the enigma, you have achieved rootdom!\nhttps://discord.gg/zb6WDebD\n> ";
                     break;
                 default:
                     inputField.text += "Command not found 'h' for help\n> ";
@@ -418,8 +469,8 @@ public class text_repl : MonoBehaviour
                 inputField.MoveTextEnd(false);
             }
         }
-        else if (((Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKey(KeyCode.LeftArrow))
-                || (Input.GetKeyDown(KeyCode.UpArrow)) || Input.GetKey(KeyCode.UpArrow) 
+        else if ((((Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKey(KeyCode.LeftArrow))
+                || ((Input.GetKeyDown(KeyCode.UpArrow)) || Input.GetKey(KeyCode.UpArrow)))
                 && !edited_file.reading)) {
             inputField.MoveTextEnd(false);
         }
