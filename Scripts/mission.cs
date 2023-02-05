@@ -3,12 +3,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-		// mission_table = new Dictionary<string, Mission>();
-		// mission_table.Add(fs.GetCurrentDirectory(), new Mission(fs.GetCurrentDirectory()));
-		// mission = mission_table[fs.GetCurrentDirectory()];
-		// mission.set_statement("place a file called \"abc.js\"\nin the root of this repository", "run submit in the root", "reward print_function");
-		// mission.expected = "abcdefghijklmnopqrstuvwxyz";
-
 public class Mission
 {
     public JintEvaluator jint;
@@ -30,32 +24,27 @@ public class Mission
 	public void init_missions(Dictionary<string, Mission> mission_table)
 	{
 		Mission new_mission = new Mission("93.1.183.174");
-		new_mission.set_statement("no problem", "submit", "inprogress");
+		new_mission.set_statement("change the value of \"byte42.data\" to 00101010", "'man cd' 'man ed'", "inprogress");
 		mission_table.Add(new_mission.ip, new_mission);
 
 		new_mission = new Mission("248.185.51.148");
-		new_mission.set_statement("create a file called \"file.txt\"\ncontaining the following byte \"00101010\"", "submit", "inprogress");
+		new_mission.set_statement("edit \"hello_world.js\" so its syntax is valid", "'js hello_world.js' javascript statements end in ;", "inprogress");
 		mission_table.Add(new_mission.ip, new_mission);
 
-		mission_table.Add("136.13.38.91", new Mission("136.13.38.91"));
-		mission_table.Add("228.109.159.41", new Mission("228.109.159.41"));
+		new_mission = new Mission("136.13.38.91");
+		new_mission.set_statement("create a javascript script named \"num_loop.js\"\n\tthis script should print each number from 0 to 100\n\tseparated by a newline",
+									"for loop, println()", "inprogress");
+		mission_table.Add(new_mission.ip, new_mission);
 
 	}
 
-	public void set_statement(string problem, string validation, string rewards)
+	public void set_statement(string problem, string tip, string rewards)
 	{
 		reward = rewards;
 		statement = "MISSION STATEMENT\n" +
 							"=================\n" +
-							"problem: " + problem  + "\n\n" +
-							"validation: " + validation + "\n\n" +
-							"reward: " + rewards + "\n";
-	}
-
-	public string test(Player player, string[] args)
-	{
-		if (args.Length == 1)
-			return ("usage: mission MACHINE_IP");
-		return ("unknown mission\n");
+							"problem : " + problem  + "\n" +
+							"tips    : " + tip + "\n" +
+							"reward. : " + rewards + "\n";
 	}
 }
