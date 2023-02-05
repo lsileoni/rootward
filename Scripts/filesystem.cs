@@ -63,6 +63,14 @@ public class FileSystem
         }
     }
 
+    public string GetMachineRoot ()
+    {
+		if (GetCurrentDirectory() == GetAbsoluteRootFilepath())
+			return (root_name);
+		return (GetRelativeRootFilepath().Split("/")[1]);
+
+    }
+
     public string GetAbsoluteRootFilepath ()
     {
         return (root_path);
@@ -109,6 +117,14 @@ public class FileSystem
             return false;
     }
 
+	public bool fileInRoot(string filename)
+	{
+        if (File.Exists(root_path + "/" + GetMachineRoot() + "/" + filename))
+            return true;
+        else
+            return false;
+	}
+
     public void goToDir(string dirname)
     {
         string path = filepath + "/" + dirname;
@@ -124,6 +140,14 @@ public class FileSystem
             return;
         else
             filepath = Path.GetDirectoryName(filepath);
+    }
+
+    public string GetFileContentPath(string path)
+    {
+        if (!File.Exists(path))
+            return "";
+        else
+            return (File.ReadAllText(path));
     }
 
     public string GetFileContent(string filename)

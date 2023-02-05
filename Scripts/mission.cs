@@ -27,6 +27,21 @@ public class Mission
 		completed = false;
     }
 
+	public void init_missions(Dictionary<string, Mission> mission_table)
+	{
+		Mission new_mission = new Mission("93.1.183.174");
+		new_mission.set_statement("no problem", "submit", "inprogress");
+		mission_table.Add(new_mission.ip, new_mission);
+
+		new_mission = new Mission("248.185.51.148");
+		new_mission.set_statement("create a file called \"file.txt\"\ncontaining the following byte \"00101010\"", "submit", "inprogress");
+		mission_table.Add(new_mission.ip, new_mission);
+
+		mission_table.Add("136.13.38.91", new Mission("136.13.38.91"));
+		mission_table.Add("228.109.159.41", new Mission("228.109.159.41"));
+
+	}
+
 	public void set_statement(string problem, string validation, string rewards)
 	{
 		reward = rewards;
