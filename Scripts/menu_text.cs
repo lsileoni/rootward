@@ -11,10 +11,14 @@ public class menu_text : MonoBehaviour
     {
         test.onClick.AddListener(load_scene);
     }
+	void Update()
+	{
+		if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return))
+			load_scene();
+	}
 
     void load_scene()
     {
-        Debug.Log("alkddlfelkeflkjeflkjalk");
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Scenes/SampleScene");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Scenes/repl_scene");
     }
 }
