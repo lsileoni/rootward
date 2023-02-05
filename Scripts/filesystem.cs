@@ -42,7 +42,7 @@ public class FileSystem
         if (!Directory.Exists(root_path + "/192.168.1.4"))
             Directory.CreateDirectory(root_path + "/192.168.1.4");
         if (!File.Exists(root_path + "/127.0.0.1/instructions.txt"));
-            createFile(root_path + "/127.0.0.1/instructions.txt", "Welcome to 127.0.0.1.\n\nThis is a machine of TEKTRONIX INCORPORATED, if you wish to escape please consult the mainframe.\n\n");
+            createFile(root_path + "/127.0.0.1/instructions.txt", "Welcome to 127.0.0.1.\n\nThis is a machine of TEKTRONIX INCORPORATED,\n if you wish to escape please consult the mainframe.\n\n");
 
         if (!Directory.Exists(root_path + "/93.1.183.174"))
             Directory.CreateDirectory(root_path + "/93.1.183.174");
