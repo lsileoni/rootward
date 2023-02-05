@@ -41,10 +41,26 @@ public class FileSystem
             Directory.CreateDirectory(root_path + "/192.168.1.4");
         if (!File.Exists(root_path + "/127.0.0.1/instructions.txt"));
             createFile(root_path + "/127.0.0.1/instructions.txt", "Welcome to 127.0.0.1, ain't nothing like home.\n\nType h for help\n\n");
+
         if (!Directory.Exists(root_path + "/93.1.183.174"))
             Directory.CreateDirectory(root_path + "/93.1.183.174");
+        if (!Directory.Exists(root_path + "/93.1.183.174/data"))
+            Directory.CreateDirectory(root_path + "/93.1.183.174/data");
+        if (!Directory.Exists(root_path + "/93.1.183.174/data/hashes"))
+            Directory.CreateDirectory(root_path + "/93.1.183.174/data/hashes");
+        if (!Directory.Exists(root_path + "/93.1.183.174/data/bytes"))
+            Directory.CreateDirectory(root_path + "/93.1.183.174/data/bytes");
+        if (!File.Exists(root_path + "/93.1.183.174/data/hashes/secret.data"))
+            createFile(root_path + "/93.1.183.174/data/hashes/secret.data", "7a24f8f4863b6411c912b22dfe25e3d2e081eb51");
+        if (!File.Exists(root_path + "/93.1.183.174/data/bytes/byte42.data"))
+            createFile(root_path + "/93.1.183.174/data/bytes/byte42.data", "00000000");
+        if (!File.Exists(root_path + "/93.1.183.174/data/bytes/byte69.data"))
+            createFile(root_path + "/93.1.183.174/data/bytes/byte69.data", "01000101");
+
         if (!Directory.Exists(root_path + "/248.185.51.148"))
             Directory.CreateDirectory(root_path + "/248.185.51.148");
+        if (!File.Exists(root_path + "/248.185.51.148/hello_world.js"))
+            createFile(root_path + "/248.185.51.148/hello_world.js", "let msg = \"Hello, world!\"\nprintln(message);");
         if (!Directory.Exists(root_path + "/136.13.38.91"))
             Directory.CreateDirectory(root_path + "/136.13.38.91");
         if (!Directory.Exists(root_path + "/228.109.159.41"))

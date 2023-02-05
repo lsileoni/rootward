@@ -64,22 +64,37 @@ public class text_repl : MonoBehaviour
     private Mission mission;
 	private Dictionary<string, Mission> mission_table;
 
-	private bool check_submit(Mission mission, FileSystem fs)
+	private bool check_submit(Mission mission)
 	{
-		if (mission.ip == "42")
+		string[] text_check;
+
+		if (mission.ip == "93.1.183.174")
 		{
-			if (mission.jint.Evaluate(fs.GetFileContent("abc.js"), inputField).ToString() == mission.expected)
+			if (fs.GetFileContentPath(fs.GetAbsoluteRootFilepath() + "/93.1.183.174/data/bytes/byte42.data") == "00101010")
 				return (true);
 		}
-		if (mission.ip == "93.1.183.174")
-			return (true);
-		if (mission.ip == "248.185.51.148");
+		if (mission.ip == "248.185.51.148")
 		{
-			string file_path = fs.GetAbsoluteRootFilepath() + "/" + fs.GetMachineRoot() + "/" + "text.txt";
-			Debug.Log(fs.fileInRoot("file.txt"));
-				Debug.Log(fs.GetFileContent(fs.GetRelativeRootFilepath() + "/" + "file.txt"));
-			if (fs.GetFileContentPath(file_path).Trim('"') == "00101010")
+			jintEvaluator.Evaluate(fs.GetFileContentPath(fs.GetAbsoluteRootFilepath() + "/248.185.51.148/hello_world.js"), inputField);
+			text_check = inputField.text.Split('\n');
+			if (text_check[text_check.Length - 1] != "Invalid Javascript")
+			{
+				inputField.text += "\n";
 				return (true);
+			}
+		}
+		if (mission.ip == "136.13.38.91")
+		{
+			jintEvaluator.Evaluate(fs.GetFileContentPath(fs.GetAbsoluteRootFilepath() + "/136.13.38.91/num_loop.js"), inputField);
+			text_check = inputField.text.Split('\n');
+			for (int i = 0; i <= 100; i++)
+			{
+				if (text_check[text_check.Length - 102 + i] != Convert.ToString(i))
+				{
+					return (false);
+				}
+			}
+			return (true);
 		}
 		return (false);
 	}
@@ -106,43 +121,51 @@ public class text_repl : MonoBehaviour
             return ((int)e_CommandCodes.CMD_JSRUN);
         if (str.Equals("ed") || str.Equals("vim") || str.Equals("emacs"))
             return ((int)e_CommandCodes.CMD_ED);
-        if (str.Equals("h") || str.Equals("help"))
+        if (str.Equals("help"))
             return ((int)e_CommandCodes.CMD_HELP);
         if (str.Equals("mission") || str.Equals("miss"))
             return ((int)e_CommandCodes.CMD_MISS);
-        if (str.Equals("m") || str.Equals("man"))
+        if (str.Equals("man"))
             return ((int)e_CommandCodes.CMD_MAN);
-        if (str.Equals("sub") || str.Equals("submit"))
+        if (str.Equals("submit"))
             return ((int)e_CommandCodes.CMD_SUB);
-        if (str.Equals("n") || str.Equals("nmap"))
+        if (str.Equals("nmap"))
             return ((int)e_CommandCodes.CMD_NMAP);
-        if (str.Equals("s") || str.Equals("ssh"))
+        if (str.Equals("ssh"))
             return ((int)e_CommandCodes.CMD_SSH);
         return (-1);
     }
+
     private void print_help()
     {
-        inputField.text += "'clear' clear\n";
+        inputField.text += "'help' help\n";
         inputField.text += "'ping' ping\n";
-        inputField.text += "'pwd' print working directory\n";
-        inputField.text += "'cd' current directory\n";
-        inputField.text += "'mkdir' make directory\n";
+        inputField.text += "'clear' clear\n";
         inputField.text += "'ls' list files\n";
         inputField.text += "'cat' list contents\n";
         inputField.text += "'js' run javascripts\n";
+        inputField.text += "'cd' current directory\n";
+        inputField.text += "'mkdir' make directory\n";
+        inputField.text += "'pwd' print working directory\n";
         inputField.text += "'ed' 'vim' 'emacs' text editors\n";
-        inputField.text += "'n' 'nmap' show list of available network devices\n";
-        inputField.text += "'s' 'ssh' connect into a remote machine securely\n";
-        inputField.text += "'h' 'help' help\n";
-        inputField.text += "'m' 'man' manual pages for commands\n";
+        inputField.text += "'man' manual pages for commands\n";
+        inputField.text += "'submit' submits answer to machines mission\n";
+        inputField.text += "'mission' mission status of current machine\n";
+        inputField.text += "'ssh' connect into a remote machine securely\n";
+        inputField.text += "'nmap' show list of available network devices\n";
         inputField.text += "> ";
     }
+
     private void man_pages(string argument)
     {
         if (argument == "clear")
             inputField.text += "clears the terminal\nformat: clear [NO ARGUMENTS]\n> ";
         else if (argument == "ping")
             inputField.text += "pongs\nformat: ping [NO ARGUMENTS]\n> ";
+        else if (argument == "submit")
+            inputField.text += "checks current machine state to mission requirement\n(see man mission)\nformat: submit [NO ARGUMENTS]\n> ";
+		else if (argument == "mission")
+			inputField.text += "displays mission status of current machine\nfollow the instructions provided and run submit (see man submit)\nformat: mission [NO ARGUMENTS]\n> ";
         else if (argument == "pwd")
             inputField.text += "prints the current working directory\nformat: pwd [NO ARGUMENTS]\nexample: \n> pwd\n{DIRECTORY_HERE}\n> ";
         else if (argument == "cd")
@@ -164,6 +187,7 @@ public class text_repl : MonoBehaviour
         else
             inputField.text += "command does not have a manual page\n> ";
     }
+
     void Start()
     {
 		player = new Player();
@@ -340,7 +364,7 @@ public class text_repl : MonoBehaviour
 					else
 						mission = mission_table[fs.GetMachineRoot()];
 
-					if (check_submit(mission, fs))
+					if (check_submit(mission))
 					{
 						mission.completed = true;
 						inputField.text += "answer: OK :D\nreward: " + mission.reward;
@@ -405,7 +429,7 @@ public class text_repl : MonoBehaviour
                     inputField.text += "\n> ";
                     break;
                 default:
-                    inputField.text += "Command not found 'h' for help\n> ";
+                    inputField.text += "Command not found 'help' for help\n> ";
                     break;
             }
             inputField.MoveTextEnd(false);
